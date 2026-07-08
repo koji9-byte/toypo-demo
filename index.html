@@ -181,6 +181,83 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 #phone[data-tone="lux"] .cp-exp{background:linear-gradient(90deg,#8A6D2E,#4C3A15);color:#F3E7C4}
 #phone[data-tone="lux"] .cp-card.used::after{background:rgba(20,17,21,.88);color:#EBCF84;border-color:#EBCF84}
 #phone[data-tone="lux"] .cp-new,#phone[data-tone="fine"] .cp-new{left:auto;right:8px}
+
+/* ================= DEMO: member card subscreen ================= */
+.vip[data-open]{cursor:pointer}
+.vip[data-open]::before{content:"詳細 ›";position:absolute;left:16px;bottom:14px;font-size:10.5px;opacity:.6;z-index:2}
+.subscreen{position:absolute;top:30px;left:0;right:0;bottom:0;z-index:45;background:var(--bg);
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;
+  padding-bottom:calc(env(safe-area-inset-bottom) + 92px)}
+.subscreen::-webkit-scrollbar{display:none}
+.sub-head{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:8px;padding:13px 14px;background:var(--bg)}
+.sub-head .sb-back{width:32px;height:32px;display:grid;place-items:center;font-size:20px;color:var(--ink)}
+.sub-head .sb-ttl{font-size:16px;font-weight:800;flex:1;text-align:center;margin-right:32px}
+/* dark hero */
+.mc-hero{margin:2px 14px 0;border-radius:16px;padding:22px 18px 18px;text-align:center;color:#fff;
+  background:linear-gradient(160deg,#2E3036 0%,#191A1D 60%,#33363D 100%);position:relative;overflow:hidden}
+.mc-hero::after{content:"";position:absolute;top:-40%;right:-10%;width:60%;height:200%;transform:rotate(22deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent)}
+.mc-badge{width:66px;height:66px;margin:0 auto 8px;border-radius:16px;display:grid;place-items:center;font-size:30px;
+  background:radial-gradient(circle at 38% 30%,#60636B,#2C2E33);border:1px solid #55585F;position:relative;z-index:1}
+.mc-cur{font-size:11px;opacity:.7;letter-spacing:.08em;position:relative;z-index:1}
+.mc-name{font-size:22px;font-weight:800;margin-top:2px;position:relative;z-index:1}
+.mc-no{font-size:12.5px;letter-spacing:.16em;opacity:.8;margin-top:6px;font-variant-numeric:tabular-nums;position:relative;z-index:1}
+.mc-pts{margin:12px 14px 0;background:#E9E9EA;border-radius:13px;padding:15px 16px;display:flex;align-items:flex-end;justify-content:space-between}
+.mc-pts .l b{font-size:15px;font-weight:800}
+.mc-pts .l small{display:block;font-size:11px;color:var(--sub);margin-top:3px}
+.mc-pts .r{text-align:right}
+.mc-pts .r b{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.mc-pts .r small{font-size:12px;color:var(--sub);margin-left:2px}
+.mc-pts .r span{display:block;font-size:10.5px;color:var(--sub);margin-top:2px}
+/* tabs */
+.mc-tabs{display:flex;gap:4px;margin:16px 14px 0;border-bottom:1px solid var(--line)}
+.mc-tabs button{flex:1;padding:11px 4px;font-size:13.5px;font-weight:700;color:var(--sub);position:relative}
+.mc-tabs button.on{color:var(--ink)}
+.mc-tabs button.on::after{content:"";position:absolute;left:12%;right:12%;bottom:-1px;height:2.5px;border-radius:2px;background:var(--ink)}
+/* rank tab */
+.rk-feature{margin:16px 14px 0;background:var(--card);border-radius:14px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.05)}
+.rk-feat-h{display:flex;align-items:center;gap:7px;font-size:15px;font-weight:800}
+.rk-feat-h::before{content:"🎁"}
+.rk-feat-sub{font-size:11.5px;color:var(--sub);margin:5px 0 13px}
+.rk-coupon{position:relative;border-radius:12px;overflow:hidden;padding:26px 18px;display:flex;flex-direction:column;
+  background:linear-gradient(110deg,var(--brand-deep),var(--brand) 62%,color-mix(in srgb,var(--brand) 70%,#fff));color:#fff}
+.rk-coupon::before,.rk-coupon::after{content:"";position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--card);transform:translateY(-50%)}
+.rk-coupon::before{left:-9px}.rk-coupon::after{right:-9px}
+.rk-coupon .rk-c-big{font-size:34px;font-weight:800;letter-spacing:.01em;line-height:1.1}
+.rk-coupon .rk-c-sub{font-size:12.5px;opacity:.92;margin-top:6px}
+.rk-coupon .rk-c-lbl{position:absolute;top:10px;right:14px;font-size:10px;font-weight:800;letter-spacing:.18em;opacity:.8}
+/* ladder */
+.rk-ladder{margin:18px 14px 0;display:flex;flex-direction:column;gap:0}
+.rk-lad-h{font-size:13px;font-weight:800;color:var(--sub);letter-spacing:.04em;margin-bottom:6px}
+.rk-step{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);position:relative}
+.rk-step:last-child{border-bottom:none}
+.rk-dot{flex:0 0 40px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:19px;
+  background:#EDEDEC;color:#9A9A9E;border:1px solid var(--line)}
+.rk-step.done .rk-dot{background:#F1E7CC;color:#B08A1E;border-color:#E4D3A0}
+.rk-step.current .rk-dot{background:linear-gradient(150deg,#2E3036,#191A1D);color:#fff;border-color:#2E3036}
+.rk-body{flex:1;min-width:0}
+.rk-nm{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:800}
+.rk-nm .rk-cur{font-size:10px;font-weight:800;color:#fff;background:var(--brand);border-radius:5px;padding:2px 7px}
+.rk-nm .rk-disc{font-size:11.5px;font-weight:800;color:#B08A1E}
+.rk-perks{list-style:none;margin:7px 0 0;padding:0;display:flex;flex-direction:column;gap:4px}
+.rk-perks li{font-size:12px;color:var(--sub);padding-left:16px;position:relative;line-height:1.5}
+.rk-perks li::before{content:"✓";position:absolute;left:0;color:var(--brand);font-weight:800}
+.rk-step.locked .rk-perks li::before{color:#C4C4C6}
+.rk-need{flex:0 0 auto;align-self:center;font-size:10.5px;font-weight:700;text-align:right;color:var(--sub);white-space:nowrap}
+.rk-step.current .rk-need{color:var(--brand)}
+.rk-step.done .rk-need{color:#B08A1E}
+.rk-note{margin:14px 14px 0;font-size:11px;color:var(--sub);line-height:1.6}
+/* store list */
+.mc-stores{margin:14px 14px 0;display:flex;flex-direction:column;gap:0}
+.mc-store{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.mc-store:last-child{border-bottom:none}
+.mc-store .st-img{flex:0 0 60px;width:60px;height:46px;border-radius:9px;background:var(--brand-soft);display:grid;place-items:center;font-size:22px;overflow:hidden}
+.mc-store .st-img img{width:100%;height:100%;object-fit:cover}
+.mc-store .st-b{flex:1;min-width:0}
+.mc-store .st-b b{font-size:14px;font-weight:700;display:block}
+.mc-store .st-b small{font-size:11.5px;color:var(--sub)}
+.mc-store .st-tag{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--brand);border:1px solid var(--brand);border-radius:999px;padding:4px 10px}
+.subscreen .app-foot{margin:18px 14px 4px}
 .mk-steps b{color:var(--mk-ink)}
 .mk-foot{margin-top:26px;font-size:11.5px;color:var(--mk-sub);text-align:center;line-height:1.8}
 
@@ -312,8 +389,8 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .rank-card .r-v small{font-size:11.5px;color:var(--sub);font-weight:600}
 
 /* quick icons */
-.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 16px 0}
-.quick button{background:var(--card);border-radius:13px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ink)}
+.quick{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:16px 16px 0}
+.quick button{background:var(--card);border-radius:13px;padding:12px 2px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:10px;font-weight:700;color:var(--ink)}
 .quick button svg{width:22px;height:22px;stroke:var(--ink)}
 
 /* survey */
@@ -621,6 +698,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
       チェックイン
     </button>
     <nav class="bnav" id="bnav"></nav>
+    <div class="subscreen" id="subscreen" hidden></div>
     <div class="toast" id="toast" role="status"></div>
     <div class="ovl" id="ovl"><div class="sheet" id="sheet"></div></div>
   </div>
@@ -3157,6 +3235,211 @@ const PRESETS = {
       {t:"スタンプ2倍キャンペーン中", d:"今月末まで、チェックインごとのスタンプが2倍貯まります。", nw:false}
     ],
     info:"ラーメン・中華料理"
+  },
+  beauty: {
+    label:"美容室・サロン", e:"💇", color:"#A6789B",
+    banners:[
+      {e:"✨", t:"新規のお客様 カット+カラー特別価格", s:"初回¥4,980（通常¥7,700）"},
+      {e:"💧", t:"うるツヤ髪キャンペーン", s:"人気トリートメントが今なら30%OFF"}
+    ],
+    coupons:[
+      {e:"🎀", title:"新規のお客様 全メニュー20%OFF", cond:"初回来店限定", days:30},
+      {e:"🎂", title:"誕生月 前髪カット無料", cond:"誕生月のみ", days:30},
+      {e:"💆", title:"【平日限定】ヘッドスパ1回無料", cond:"平日13時まで", days:14}
+    ],
+    cats:[
+      {k:"reco", label:"人気メニュー", items:[
+        {id:"b1", e:"✂️", n:"カット", p:4400, d:"似合わせカット。丁寧なカウンセリング付き。"},
+        {id:"b2", e:"🎨", n:"カラー（リタッチ）", p:5500, d:"髪に優しい薬剤で色持ちよく。"},
+        {id:"b3", e:"💧", n:"髪質改善トリートメント", p:6600, op:8000, off:"1,400円引き！", d:"広がりを抑えてまとまる髪へ。"},
+        {id:"b4", e:"💆", n:"炭酸ヘッドスパ", p:3300, d:"頭皮すっきり、極上のリラックス。"}
+      ]},
+      {k:"perm", label:"パーマ・矯正", items:[
+        {id:"b5", e:"🌀", n:"デジタルパーマ", p:8800, d:"再現性の高いカール。"},
+        {id:"b6", e:"➡️", n:"縮毛矯正", p:12000, d:"自然なストレートを長時間キープ。"}
+      ]},
+      {k:"opt", label:"オプション", items:[
+        {id:"b7", e:"✂️", n:"前髪カット", p:550, d:"次回来店までの間に。"},
+        {id:"b8", e:"👰", n:"ヘアセット・アレンジ", p:3300, d:"結婚式・イベントに。"}
+      ]},
+      {k:"goods", label:"店販アイテム", items:[
+        {id:"b9", e:"🧴", n:"サロン専売シャンプー", p:2800, d:"自宅でもサロンの仕上がり。"},
+        {id:"b10", e:"💦", n:"洗い流さないヘアオイル", p:2400, d:"毛先までしっとり。"}
+      ]}
+    ],
+    exchange:[
+      {e:"🎟️", bg:"#A6789B", title:"選べるクーポン", pts:10},
+      {e:"💴", bg:"#8A6D1E", title:"500円引きポイントクーポン", pts:500},
+      {e:"💆", bg:"#7A5A6A", title:"ヘッドスパ1回と交換", pts:300}
+    ],
+    subsc:{e:"💇", t:"前髪＆ケア通い放題", pr:"月額¥3,980", d:"前髪カットとヘアケアが何度でも受けられるサブスクです。"},
+    notices:[
+      {t:"新スタイリストが入店しました", d:"トレンドカラーが得意なスタイリストが仲間入り。ご指名も承ります。", nw:true},
+      {t:"年末のご予約が混み合っています", d:"12月は早めのご予約がおすすめです。アプリからいつでも予約できます。", nw:false}
+    ],
+    info:"ヘアサロン・美容室"
+  },
+  relax: {
+    label:"整体・リラク", e:"💆", color:"#3E7C7B",
+    banners:[
+      {e:"🌿", t:"初回60分 ¥2,980", s:"肩こり・腰痛を集中ケア"},
+      {e:"🎫", t:"回数券がお得になりました", s:"10回券で1回あたり¥3,300"}
+    ],
+    coupons:[
+      {e:"🌿", title:"初回60分コース ¥2,980", cond:"新規来店限定", days:30},
+      {e:"☀️", title:"【平日昼割】全コース500円引き", cond:"平日15時まで", days:21},
+      {e:"💆", title:"ヘッドマッサージ10分無料", cond:"ご来店ごと", days:14}
+    ],
+    cats:[
+      {k:"reco", label:"人気コース", items:[
+        {id:"r1", e:"💆", n:"全身整体 60分", p:5500, d:"骨格・筋肉のバランスを丁寧に調整。"},
+        {id:"r2", e:"🙆", n:"もみほぐし 40分", p:3800, d:"お疲れの部位を集中的に。"},
+        {id:"r3", e:"🦵", n:"骨盤矯正", p:4400, d:"姿勢・むくみが気になる方に。"},
+        {id:"r4", e:"👣", n:"足つぼ 30分", p:3300, d:"全身のめぐりをすっきり。"}
+      ]},
+      {k:"opt", label:"オプション", items:[
+        {id:"r5", e:"💆", n:"ヘッドマッサージ 15分", p:1650, d:"眼精疲労・頭の重さに。"},
+        {id:"r6", e:"🔥", n:"ホットストーン", p:2200, d:"じんわり温めて深部までほぐす。"}
+      ]},
+      {k:"ticket", label:"回数券", items:[
+        {id:"r7", e:"🎫", n:"60分コース 5回券", p:26000, op:27500, off:"1,500円お得", d:"約2ヶ月の目安。"},
+        {id:"r8", e:"🎫", n:"60分コース 10回券", p:48000, op:55000, off:"7,000円お得", d:"しっかり通いたい方に。"}
+      ]},
+      {k:"goods", label:"店販", items:[
+        {id:"r9", e:"🪑", n:"姿勢サポートクッション", p:3800, d:"デスクワークのお供に。"}
+      ]}
+    ],
+    exchange:[
+      {e:"🎟️", bg:"#3E7C7B", title:"選べるクーポン", pts:10},
+      {e:"💴", bg:"#8A6D1E", title:"500円引きポイントクーポン", pts:500},
+      {e:"💆", bg:"#2E5C5B", title:"ヘッドマッサージ15分と交換", pts:250}
+    ],
+    subsc:{e:"🌿", t:"メンテナンス通い放題", pr:"月額¥6,980", d:"もみほぐし40分が月に何度でも受けられるサブスクです。"},
+    notices:[
+      {t:"ご予約枠を拡大しました", d:"平日夜のご予約枠を追加しました。お仕事帰りにもどうぞ。", nw:true},
+      {t:"季節の変わり目ケアのすすめ", d:"寒暖差で肩・腰に負担がかかりやすい季節です。早めのケアを。", nw:false}
+    ],
+    info:"整体・リラクゼーション"
+  },
+  retail: {
+    label:"アパレル・物販", e:"🛍️", color:"#B0764A",
+    banners:[
+      {e:"🏷️", t:"SUMMER SALE 開催中", s:"対象商品が最大50%OFF"},
+      {e:"✨", t:"新作コレクション入荷", s:"アプリ会員は先行購入OK"}
+    ],
+    coupons:[
+      {e:"🎁", title:"新規会員 10%OFFクーポン", cond:"初回購入限定", days:30},
+      {e:"🎂", title:"誕生月 500円OFFクーポン", cond:"誕生月のみ", days:30},
+      {e:"🛍️", title:"3点以上ご購入でノベルティ", cond:"期間限定", days:14}
+    ],
+    cats:[
+      {k:"reco", label:"新作", items:[
+        {id:"t1", e:"👕", n:"オーガニックコットンT", p:3900, d:"肌ざわりのよい定番タイプ。"},
+        {id:"t2", e:"👖", n:"ストレートデニム", p:9800, op:12000, off:"2,200円引き！", d:"シルエットにこだわった一本。"},
+        {id:"t3", e:"👟", n:"レザースニーカー", p:14300, d:"きれいめにもカジュアルにも。"},
+        {id:"t4", e:"👜", n:"キャンバストート", p:5500, d:"毎日使えるちょうどいい容量。"}
+      ]},
+      {k:"sale", label:"セール", items:[
+        {id:"t5", e:"🧥", n:"ライトアウター", p:8800, op:16000, off:"SALE", d:"今の時期に活躍。"},
+        {id:"t6", e:"🧶", n:"サマーニット", p:4900, op:8800, off:"SALE", d:"一枚でさらっと。"}
+      ]},
+      {k:"acc", label:"雑貨・小物", items:[
+        {id:"t7", e:"🧢", n:"ロゴキャップ", p:3300, d:"コーデのアクセントに。"},
+        {id:"t8", e:"🧦", n:"リブソックス（3足）", p:1500, d:"色違いで揃えたい。"}
+      ]},
+      {k:"online", label:"オンライン限定", items:[
+        {id:"t9", e:"🌈", n:"限定カラーニット", p:6600, d:"アプリ会員だけの別注色。"}
+      ]}
+    ],
+    exchange:[
+      {e:"🎟️", bg:"#B0764A", title:"選べるクーポン", pts:10},
+      {e:"💴", bg:"#8A6D1E", title:"500円引きポイントクーポン", pts:500},
+      {e:"🧦", bg:"#7A5636", title:"リブソックスと交換", pts:150}
+    ],
+    subsc:{e:"🛍️", t:"プレミアム会員", pr:"月額¥980", d:"送料無料・セール先行入場・限定クーポンが使えるサブスクです。"},
+    notices:[
+      {t:"SUMMER SALE がスタートしました", d:"人気アイテムから売り切れていきます。アプリでお気に入り登録も可能です。", nw:true},
+      {t:"オンラインストアも会員証が使えます", d:"店舗とオンラインでポイント・ランクを共通で貯められます。", nw:false}
+    ],
+    info:"アパレル・セレクトショップ"
+  },
+  fitness: {
+    label:"ジム・フィットネス", e:"💪", color:"#E4572E",
+    banners:[
+      {e:"🔥", t:"入会金0円キャンペーン", s:"今月ご入会の方限定"},
+      {e:"🏋️", t:"パーソナル体験 受付中", s:"プロトレーナーが目標をサポート"}
+    ],
+    coupons:[
+      {e:"🎟️", title:"体験トレーニング1回無料", cond:"初回のみ", days:30},
+      {e:"👥", title:"友達紹介で1ヶ月無料", cond:"紹介・入会で", days:60},
+      {e:"🥤", title:"プロテイン1杯無料", cond:"ご来店ごと", days:14}
+    ],
+    cats:[
+      {k:"reco", label:"プラン", items:[
+        {id:"f1", e:"🎫", n:"体験トレーニング", p:0, op:3300, off:"今なら無料！", d:"※デモのため、実際のお申込みは行わないでください。"},
+        {id:"f2", e:"📅", n:"月4回プラン", p:8800, d:"まずは週1回の習慣づけに。"},
+        {id:"f3", e:"♾️", n:"通い放題プラン", p:12800, d:"好きなだけトレーニング。"},
+        {id:"f4", e:"🧑‍🏫", n:"パーソナル60分", p:6600, d:"マンツーマンで効率よく。"}
+      ]},
+      {k:"opt", label:"オプション", items:[
+        {id:"f5", e:"🥤", n:"プロテインバー", p:400, d:"トレーニング後の一杯。"},
+        {id:"f6", e:"👕", n:"レンタルウェア", p:330, d:"手ぶらで通える。"}
+      ]},
+      {k:"goods", label:"物販", items:[
+        {id:"f7", e:"🥛", n:"プロテイン 1kg", p:4800, d:"人気フレーバー。"},
+        {id:"f8", e:"🍶", n:"シェイカー", p:1200, d:"目盛り付きで使いやすい。"}
+      ]}
+    ],
+    exchange:[
+      {e:"🎟️", bg:"#E4572E", title:"選べるクーポン", pts:10},
+      {e:"💴", bg:"#8A6D1E", title:"500円引きポイントクーポン", pts:500},
+      {e:"🥤", bg:"#B33E1C", title:"プロテイン1杯と交換", pts:120}
+    ],
+    subsc:{e:"💪", t:"通い放題メンバーシップ", pr:"月額¥7,800", d:"営業時間内なら何度でも利用できるメンバーシップです。"},
+    notices:[
+      {t:"新しいマシンを導入しました", d:"人気の最新マシンを増設。混雑状況もアプリで確認できます。", nw:true},
+      {t:"パーソナル枠を増やしました", d:"early morning・夜間のパーソナル枠を拡大しました。", nw:false}
+    ],
+    info:"フィットネス・パーソナルジム"
+  },
+  bar: {
+    label:"バー・ラウンジ", e:"🍸", color:"#2A2C5A",
+    banners:[
+      {e:"🥂", t:"開店1周年 感謝フェア", s:"スパークリング1杯サービス"},
+      {e:"🍾", t:"ボトルキープキャンペーン", s:"対象ボトルが今なら20%OFF"}
+    ],
+    coupons:[
+      {e:"🎫", title:"チャージ料無料", cond:"アプリ提示で", days:30},
+      {e:"🍸", title:"本日のシグネチャーカクテル1杯無料", cond:"ご来店ごと", days:14},
+      {e:"🕔", title:"【ハッピーアワー】全ドリンク半額", cond:"平日18-20時", days:30}
+    ],
+    cats:[
+      {k:"reco", label:"シグネチャー", items:[
+        {id:"br1", e:"🍸", n:"オリジナルカクテル", p:1300, d:"バーテンダーおまかせの一杯。"},
+        {id:"br2", e:"🥃", n:"厳選ウイスキー（ショット）", p:1100, d:"銘柄はスタッフまで。"},
+        {id:"br3", e:"🍷", n:"グラスワイン", p:900, d:"赤・白・スパークリング。"},
+        {id:"br4", e:"🧀", n:"チーズ盛り合わせ", p:1200, d:"ワインのお供に。"}
+      ]},
+      {k:"bottle", label:"ボトル", items:[
+        {id:"br5", e:"🥃", n:"ウイスキーボトル", p:12000, d:"ボトルキープ可能。"},
+        {id:"br6", e:"🍾", n:"シャンパン", p:18000, d:"記念日・お祝いに。"}
+      ]},
+      {k:"food", label:"フード", items:[
+        {id:"br7", e:"🥜", n:"ミックスナッツ", p:600, d:"定番のおつまみ。"},
+        {id:"br8", e:"🍖", n:"生ハム盛り", p:1400, d:"厚切りでしっかり。"}
+      ]}
+    ],
+    exchange:[
+      {e:"🎟️", bg:"#2A2C5A", title:"選べるクーポン", pts:10},
+      {e:"💴", bg:"#8A6D1E", title:"500円引きポイントクーポン", pts:500},
+      {e:"🍸", bg:"#1E2044", title:"シグネチャーカクテルと交換", pts:200}
+    ],
+    subsc:{e:"🍸", t:"メンバーズパス", pr:"月額¥5,000", d:"来店ごとにチャージ無料＋1杯サービスの会員パスです。"},
+    notices:[
+      {t:"周年フェアを開催します", d:"日頃の感謝を込めて、期間中はスパークリングを1杯サービスいたします。", nw:true},
+      {t:"貸切・パーティのご予約承ります", d:"記念日や接待に。アプリからお気軽にお問い合わせください。", nw:false}
+    ],
+    info:"バー・ラウンジ"
   }
 };
 
@@ -3194,7 +3477,8 @@ const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false,
   tone:"fine", photo:"" };
 
 /* default tone per industry (単価高め=高級寄り) */
-const TONE_BY_IND = { yakiniku:"lux", izakaya:"fine", cafe:"fine", ramen:"pop" };
+const TONE_BY_IND = { yakiniku:"lux", izakaya:"fine", cafe:"fine", ramen:"pop",
+  beauty:"fine", relax:"fine", retail:"fine", fitness:"pop", bar:"lux" };
 
 /* ---- image upload: 端末の写真を圧縮してデータURL化（外部サーバー不要） ---- */
 function fileToImage(file){
@@ -3523,6 +3807,7 @@ function startDemo(cfg){
   };
   renderNav();
   renderTab();
+  $("#subscreen").hidden = true;
   $("#fab").onclick = doCheckin;
   $("#btn-back").onclick = ()=>{ history.replaceState(null,"", location.pathname + location.search); route(); };
 }
@@ -3567,6 +3852,7 @@ function renderNav(){
     </button>`).join("");
   $("#bnav").onclick = e => {
     const b = e.target.closest("button"); if(!b) return;
+    closeMember();
     D.tab = b.dataset.k; D.cartView = false; D.orderDone = null;
     renderNav(); renderTab();
   };
@@ -3583,10 +3869,24 @@ function renderTab(){
 }
 
 /* ---------- home ---------- */
+/* ---- membership rank ladder（ランク別特典） ---- */
+const RANKS = [
+  {key:"regular",  name:"レギュラー", card:"Regular",  ic:"🎫", need:0,  disc:0,
+    perks:["ご来店ごとにポイント付与","お知らせ・限定情報の配信"]},
+  {key:"silver",   name:"シルバー",   card:"Silver",   ic:"🥈", need:5,  disc:5,
+    perks:["お会計 5%割引クーポン","ポイント2倍デー参加"]},
+  {key:"gold",     name:"ゴールド",   card:"Gold",     ic:"🥇", need:12, disc:8,
+    perks:["お会計 8%割引クーポン","誕生月のプレゼント特典","新メニュー先行案内"]},
+  {key:"vip",      name:"VIP",       card:"VIP",      ic:"⭐", need:24, disc:10,
+    perks:["お会計 10%割引クーポン","VIP限定クーポンの配信","優先ご予約のご案内"]},
+  {key:"platinum", name:"プラチナ",   card:"Platinum", ic:"👑", need:48, disc:15,
+    perks:["お会計 15%割引クーポン","専用サポート窓口","記念日フルコース特典"]}
+];
+function rankLevel(){ return D.stamps + D.checkins; }
+function rankIndex(){ let idx=0; const lv=rankLevel(); for(let i=0;i<RANKS.length;i++){ if(lv>=RANKS[i].need) idx=i; } return idx; }
 function rankInfo(){
-  const lv = D.stamps + D.checkins;
-  if(lv >= 12) return {name:"ゴールド", perk:"10％割引"};
-  return {name:"シルバー", perk:"5％割引"};
+  const r = RANKS[rankIndex()];
+  return {name:r.name, card:r.card, disc:r.disc, perk:r.disc? r.disc+"％割引" : "特典スタート"};
 }
 function homeHtml(){
   const {cfg, P} = D;
@@ -3626,11 +3926,11 @@ function homeHtml(){
   </div>
   <div class="b-dots">${banners.map((_,i)=>`<i class="${i===0?"on":""}"></i>`).join("")}</div>
 
-  <div class="vip">
+  <div class="vip" data-open="member" role="button" tabindex="0">
     <div class="v-grp">${esc(cfg.n)} 公式会員証</div>
-    <div class="v-name">${rank.name === "ゴールド" ? "GOLD" : "VIP"} Card</div>
+    <div class="v-name">${rank.card} Card</div>
     <div class="v-no">${D.memberNo}</div>
-    <div class="v-badge">🏅</div>
+    <div class="v-badge">${RANKS[rankIndex()].ic}</div>
     <div class="v-rank">${rank.name}<br>${rank.perk}</div>
   </div>
 
@@ -3665,9 +3965,10 @@ function homeHtml(){
 
   <div class="quick">
     <button data-q="coupon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 8a2 2 0 0 0 2-2h12a0 0 0 0 0 0 0 2 2 0 0 0 2 2v2a2 2 0 1 0 0 4v2a2 2 0 0 0-2 2H6a2 2 0 0 0-2-2v-2a2 2 0 1 0 0-4Z"/><path d="M12 6v12" stroke-dasharray="2 3"/></svg>クーポン</button>
-    <button data-q="card"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 11h2"/></svg>会員カード</button>
-    <button data-q="rank"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="9" r="5"/><path d="m9 13-2 8 5-3 5 3-2-8"/></svg>ランク</button>
-    <button data-q="order"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>メニュー</button>
+    <button data-q="ticket"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 9a2 2 0 0 0 0 6v2a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-2a2 2 0 0 0 0-6V7a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1Z"/><path d="M15 6v12" stroke-dasharray="1.5 3"/></svg>チケット</button>
+    <button data-q="subsc"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v4h-4"/></svg>サブスク</button>
+    <button data-q="member"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 15h4M7 11h2"/></svg>会員カード</button>
+    <button data-q="stamp"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="m9 12 2 2 4-4"/></svg>スタンプ</button>
   </div>
 
   ${D.surveyDone ? "" : `
@@ -3738,10 +4039,15 @@ function bindHome(sc){
     if(cp){ openCoupon(cp.dataset.cp); return; }
     const ex = e.target.closest("[data-ex]");
     if(ex){ openExchange(+ex.dataset.ex); return; }
+    if(e.target.closest('[data-open="member"]')){ openMember("rank"); return; }
     const q = e.target.closest("[data-q]");
     if(q){
-      if(q.dataset.q === "order"){ D.tab = "menu"; renderNav(); renderTab(); }
-      else if(q.dataset.q === "coupon"){ $(".coupon-strip").scrollIntoView({behavior:"smooth"}); }
+      const k = q.dataset.q;
+      if(k === "member"){ openMember("rank"); }
+      else if(k === "coupon"){ $(".coupon-strip").scrollIntoView({behavior:"smooth"}); }
+      else if(k === "stamp"){ $(".stat-card").scrollIntoView({behavior:"smooth"}); }
+      else if(k === "subsc"){ openSubsc(); }
+      else if(k === "ticket"){ openTicket(); }
       else toast("デモのため一部画面は省略しています");
       return;
     }
@@ -3749,6 +4055,119 @@ function bindHome(sc){
     if(e.target.closest("#btn-subsc")){ openSubsc(); return; }
     if(e.target.closest(".more")){ toast("デモのため一覧画面は省略しています"); }
   };
+}
+
+/* ---------- member card subscreen（ランク別特典） ---------- */
+let mcTab = "rank";
+function openMember(tab){ mcTab = tab || "rank"; renderMember(); $("#subscreen").hidden = false; $("#subscreen").scrollTop = 0; }
+function closeMember(){ $("#subscreen").hidden = true; }
+function siblingStores(cfg, P){
+  const base = cfg.n.replace(/\s*[（(].*$/,"");
+  return [
+    {n: cfg.n, area:"本店", tag:"登録中", img:cfg.ph||""},
+    {n: P.label.split("・")[0] + " " + base + " 駅前店", area:"サンプル店舗", tag:"登録する", img:""},
+    {n: P.label.split("・")[0] + " " + base + " 本店", area:"サンプル店舗", tag:"登録する", img:""}
+  ];
+}
+function renderMember(){
+  const {cfg, P} = D;
+  const ci = rankIndex();
+  const cur = RANKS[ci];
+  const lv = rankLevel();
+  const tabs = [["rank","ランク"],["point","ポイント"],["store","対象店舗"]];
+  let body = "";
+  if(mcTab === "rank"){
+    body = `
+      <div class="rk-feature">
+        <div class="rk-feat-h">${cur.card} Card 特典</div>
+        <p class="rk-feat-sub">各ランクの期間中に利用できる、ランク付帯特典です。</p>
+        <div class="rk-coupon">
+          <span class="rk-c-lbl">RANK COUPON</span>
+          <span class="rk-c-big">${cur.disc ? cur.disc + "% 割引" : "ポイント付与"}</span>
+          <span class="rk-c-sub">${esc(cur.perks[0])}</span>
+        </div>
+      </div>
+      <div class="rk-ladder">
+        <div class="rk-lad-h">ランクと特典の一覧</div>
+        ${RANKS.map((r,i)=>{
+          const state = i<ci ? "done" : i===ci ? "current" : "locked";
+          const need = i<=ci ? (i===ci?"現在のランク":"達成済み") : `あと${r.need-lv}回来店`;
+          return `
+          <div class="rk-step ${state}">
+            <div class="rk-dot">${r.ic}</div>
+            <div class="rk-body">
+              <div class="rk-nm">${r.name}${i===ci?'<span class="rk-cur">現在</span>':""}${r.disc?`<span class="rk-disc">${r.disc}%OFF</span>`:""}</div>
+              <ul class="rk-perks">${r.perks.map(p=>`<li>${esc(p)}</li>`).join("")}</ul>
+            </div>
+            <div class="rk-need">${need}</div>
+          </div>`;
+        }).join("")}
+      </div>
+      <p class="rk-note">ランクはご来店・チェックインの回数で上がっていきます。上がるほど割引率が上がり、限定クーポンや優先ご予約などの特典が増えていきます。</p>`;
+  }else if(mcTab === "point"){
+    body = `
+      <div class="rk-feature">
+        <div class="rk-feat-h" style="justify-content:space-between">保有ポイント<span style="font-size:22px">${D.pts}<small style="font-size:12px;color:var(--sub)"> P</small></span></div>
+        <p class="rk-feat-sub">100円のお会計ごとに1ポイント貯まります。有効期限：--</p>
+      </div>
+      <div class="rk-lad-h" style="margin:16px 14px 0">ポイントで交換する</div>
+      <div class="mc-stores">
+        ${P.exchange.map((x,i)=>`
+          <div class="mc-store" data-ex="${i}">
+            <span class="st-img" style="background:${mix('#FFFFFF',x.bg,0.82)}">${x.e}</span>
+            <span class="st-b"><b>${esc(x.title)}</b><small>${x.pts}ポイント</small></span>
+            <span class="st-tag">${D.pts>=x.pts?"交換できます":"あと"+(x.pts-D.pts)+"P"}</span>
+          </div>`).join("")}
+      </div>`;
+  }else{
+    const stores = siblingStores(cfg, P);
+    body = `
+      <div class="rk-lad-h" style="margin:16px 14px 0">このカードが使える店舗</div>
+      <div class="mc-stores">
+        ${stores.map(s=>`
+          <div class="mc-store">
+            <span class="st-img">${s.img?`<img src="${esc(s.img)}" alt="">`:P.e}</span>
+            <span class="st-b"><b>${esc(s.n)}</b><small>${esc(s.area)}</small></span>
+            <span class="st-tag">${esc(s.tag)}</span>
+          </div>`).join("")}
+      </div>
+      <p class="rk-note">同じグループの店舗でも、このアプリのポイント・ランク・クーポンを共通で使えます（グループ共通会員証）。</p>`;
+  }
+  $("#subscreen").innerHTML = `
+    <div class="sub-head">
+      <button class="sb-back" aria-label="戻る">‹</button>
+      <span class="sb-ttl">会員カード</span>
+    </div>
+    <div class="mc-hero">
+      <div class="mc-badge">${cur.ic}</div>
+      <div class="mc-cur">現在のランク</div>
+      <div class="mc-name">${cur.card} Card</div>
+      <div class="mc-no">${D.memberNo}</div>
+    </div>
+    <div class="mc-pts">
+      <div class="l"><b>ポイント</b><small>お会計ポイント数</small></div>
+      <div class="r"><b>${D.pts}</b><small>P</small><span>100円で1ポイント</span></div>
+    </div>
+    <div class="mc-tabs">
+      ${tabs.map(([k,l])=>`<button data-mtab="${k}" class="${mcTab===k?"on":""}">${l}</button>`).join("")}
+    </div>
+    ${body}
+    <p class="app-foot">Powered by toypo（デモ画面）</p>`;
+  const ss = $("#subscreen");
+  ss.querySelector(".sb-back").onclick = closeMember;
+  ss.onclick = e=>{
+    const t = e.target.closest("[data-mtab]");
+    if(t){ mcTab = t.dataset.mtab; renderMember(); ss.scrollTop = 0; return; }
+    const ex = e.target.closest("[data-ex]");
+    if(ex){ openExchange(+ex.dataset.ex); }
+  };
+}
+function openTicket(){
+  openSheet(`
+    <div class="ticket"><span class="t-e">🎫</span><b>回数券・チケット</b>
+      <p>10回分の食事券や体験チケットなどをアプリ内で販売・管理できます。<br>（デモのためサンプル表示です）</p></div>
+    <button class="sh-ghost" id="sh-close">閉じる</button>`);
+  $("#sh-close").onclick = closeSheet;
 }
 
 function findCoupon(id){
