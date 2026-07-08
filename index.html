@@ -1,11 +1,5 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="robots" content="noindex">
-</head>
-<body>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
 <title>toypoデモメーカー</title>
 <style>
 /* ============ tokens ============ */
@@ -107,6 +101,74 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 }
 .hist-chip .dot{width:10px;height:10px;border-radius:50%}
 .mk-steps{font-size:13px;color:var(--mk-sub);line-height:2;padding-left:2px}
+
+/* ---- brand fetch (logo / photo) ---- */
+.mk-fetch{display:flex;gap:8px}
+.mk-fetch .mk-input{flex:1;min-width:0}
+.mk-mini-btn{flex:0 0 auto;border-radius:10px;background:var(--mk-ink);color:var(--mk-bg);font-weight:700;font-size:13px;padding:0 14px;white-space:nowrap}
+.mk-mini-btn:disabled{opacity:.5}
+.mk-mini-btn.busy{opacity:.6}
+.brand-prev{display:flex;gap:12px;margin-top:12px;align-items:center}
+.bp-logo{width:46px;height:46px;border-radius:12px;background:var(--mk-bg);border:1px solid var(--mk-line);overflow:hidden;flex:0 0 46px;display:grid;place-items:center;font-size:20px;color:var(--mk-sub)}
+.bp-photo{width:82px;height:46px;border-radius:10px;background:var(--mk-bg);border:1px solid var(--mk-line);overflow:hidden;flex:0 0 82px;display:grid;place-items:center;font-size:10px;color:var(--mk-sub);text-align:center}
+.bp-logo img,.bp-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.bp-hint{font-size:11.5px;color:var(--mk-sub);line-height:1.55;flex:1}
+.mk-sublabel{font-size:11.5px;font-weight:700;color:var(--mk-sub);margin:12px 0 6px}
+
+/* ---- tone selector ---- */
+.tone-row{display:flex;gap:8px}
+.tone-btn{flex:1;border:1.5px solid var(--mk-line);background:var(--mk-bg);border-radius:12px;padding:11px 6px;text-align:center;font-size:13px;font-weight:700;color:var(--mk-ink)}
+.tone-btn small{display:block;font-size:10px;font-weight:600;color:var(--mk-sub);margin-top:3px;letter-spacing:.02em}
+.tone-btn .te{font-size:18px;display:block;margin-bottom:2px}
+.tone-btn.on{border-color:var(--tp);background:color-mix(in srgb,var(--tp) 8%, var(--mk-card))}
+
+/* ---- coupon / notice editors ---- */
+.ed-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.ed-item{border:1px solid var(--mk-line);border-radius:12px;padding:11px 11px 12px;position:relative;background:var(--mk-bg)}
+.ed-item .ed-del{position:absolute;top:5px;right:7px;color:var(--mk-sub);font-size:17px;line-height:1;padding:2px 4px}
+.ed-item .mk-input{margin-top:7px;font-size:14px}
+.ed-item .ed-row2{display:flex;gap:8px;margin-top:7px}
+.ed-item .ed-row2 .mk-input{margin-top:0}
+.ed-emoji{flex:0 0 58px;text-align:center;font-size:18px}
+.ed-days{flex:0 0 96px}
+.ed-add{border:1.5px dashed var(--mk-line);background:none;border-radius:12px;padding:11px;width:100%;color:var(--mk-sub);font-weight:700;font-size:13px}
+.ed-add:hover{color:var(--mk-ink);border-color:var(--mk-sub)}
+
+/* ================= DEMO: brand image ================= */
+.mini-logo{overflow:hidden}
+.mini-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.big-logo{overflow:hidden}
+.big-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.vip .v-badge.has-logo{background:#fff;overflow:hidden;border:1px solid rgba(255,255,255,.55)}
+.vip .v-badge.has-logo img{width:100%;height:100%;object-fit:cover}
+.banner.has-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(0,0,0,.66),rgba(0,0,0,.18))}
+.banner.has-photo h3,.banner.has-photo p,.banner.has-photo .b-e,.banner.has-photo .b-new{position:relative;z-index:1}
+.info-hero.has-photo{position:relative;color:#fff;background-size:cover;background-position:center}
+.info-hero.has-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.30),rgba(0,0,0,.70))}
+.info-hero.has-photo>*{position:relative;z-index:1}
+.info-hero.has-photo .big-logo{background:#fff}
+
+/* ================= DEMO: coupon tones ================= */
+.cp-img .cp-e{position:relative;z-index:1}
+.cp-img.cp-photo{background-size:cover !important;background-position:center !important}
+.cp-img.cp-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(0,0,0,.12),rgba(0,0,0,.58))}
+.cp-img.cp-photo .cp-e{filter:drop-shadow(0 2px 5px rgba(0,0,0,.6))}
+/* 上品 fine */
+#phone[data-tone="fine"] .cp-card{box-shadow:0 4px 14px rgba(0,0,0,.09)}
+#phone[data-tone="fine"] .cp-img:not(.cp-photo){background:linear-gradient(150deg,#F0E8DA,#DED0B8) !important;color:#7A6740;font-size:34px}
+#phone[data-tone="fine"] .cp-img .cp-frame{inset:6px;border:1px solid rgba(165,135,72,.65)}
+#phone[data-tone="fine"] .cp-body b{font-family:"Hiragino Mincho ProN","Yu Mincho",YuMincho,serif;letter-spacing:.02em}
+#phone[data-tone="fine"] .cp-tag{background:#B39A5E}
+#phone[data-tone="fine"] .cp-exp{background:#9B824B}
+/* 高級 lux */
+#phone[data-tone="lux"] .cp-card{background:#18171B;color:#EDE6D6;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+#phone[data-tone="lux"] .cp-img:not(.cp-photo){background:radial-gradient(circle at 30% 22%,#3B3226,#151318) !important;color:#E7C976;font-size:36px}
+#phone[data-tone="lux"] .cp-img .cp-frame{inset:7px;border:1px solid;border-image:linear-gradient(135deg,#E7C976,#8A6D2E) 1;border-radius:0}
+#phone[data-tone="lux"] .cp-body b{font-family:"Hiragino Mincho ProN","Yu Mincho",YuMincho,serif;color:#F1EAD9;letter-spacing:.03em}
+#phone[data-tone="lux"] .cp-meta{color:#A89C83}
+#phone[data-tone="lux"] .cp-tag{background:linear-gradient(135deg,#CBA24A,#8A6D2E);color:#1B1206}
+#phone[data-tone="lux"] .cp-exp{background:linear-gradient(90deg,#8A6D2E,#5C4718);color:#F1E6C6}
+#phone[data-tone="lux"] .cp-card.used::after{background:rgba(21,19,24,.86);color:#E7C976;border-color:#E7C976}
 .mk-steps b{color:var(--mk-ink)}
 .mk-foot{margin-top:26px;font-size:11.5px;color:var(--mk-sub);text-align:center;line-height:1.8}
 
@@ -455,7 +517,48 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
       <label class="mk-label" for="f-banner">トップバナーの文言<small>任意・その会社の話題を入れると刺さります</small></label>
       <input class="mk-input" id="f-banner" placeholder="例：食べ放題コース新登場！" maxlength="24" autocomplete="off">
     </div>
-    <button class="mk-btn" id="btn-gen">デモ画面を発行する</button>
+
+    <div class="mk-field">
+      <label class="mk-label" for="f-dom">相手企業のロゴ・写真を取り込む<small>任意・一気に「自社アプリ感」が出ます</small></label>
+      <div class="mk-fetch">
+        <input class="mk-input" id="f-dom" placeholder="例：starbucks.co.jp（HPのドメイン）" autocomplete="off" inputmode="url">
+        <button type="button" class="mk-mini-btn" id="btn-fetch">自動取得</button>
+      </div>
+      <div class="brand-prev">
+        <span class="bp-logo" id="bp-logo">ロゴ</span>
+        <span class="bp-photo" id="bp-photo">写真</span>
+        <span class="bp-hint" id="bp-hint">ドメインを入れて「自動取得」。うまく出ないときは下で画像URLを直接指定できます（相手HPの画像を右クリック→「画像アドレスをコピー」）。</span>
+      </div>
+      <details class="mk-adv" style="margin-top:10px">
+        <summary>画像URLを手動で指定する</summary>
+        <p class="mk-sublabel" style="margin-top:10px">ロゴ画像URL</p>
+        <input class="mk-input" id="f-logo" placeholder="https://.../logo.png" autocomplete="off">
+        <p class="mk-sublabel">メイン写真URL（店内・料理など）</p>
+        <input class="mk-input" id="f-photo" placeholder="https://.../photo.jpg" autocomplete="off">
+      </details>
+    </div>
+
+    <div class="mk-field">
+      <span class="mk-label">クーポン・画面の世界観<small>相手企業の雰囲気に合わせて</small></span>
+      <div class="tone-row" id="f-tone" role="radiogroup" aria-label="世界観">
+        <button type="button" class="tone-btn" role="radio" data-tone="lux"><span class="te">🥂</span>高級<small>黒×金・写真</small></button>
+        <button type="button" class="tone-btn on" role="radio" aria-checked="true" data-tone="fine"><span class="te">🍽️</span>上品<small>落ち着き</small></button>
+        <button type="button" class="tone-btn" role="radio" data-tone="pop"><span class="te">🎉</span>ポップ<small>カジュアル</small></button>
+      </div>
+    </div>
+
+    <details class="mk-adv" id="mk-editors">
+      <summary>クーポン・お知らせを編集する（任意）</summary>
+      <p class="mk-sublabel" style="margin-top:12px">クーポン</p>
+      <div class="ed-list" id="ed-coupons"></div>
+      <button type="button" class="ed-add" id="add-coupon">＋ クーポンを追加</button>
+      <p class="mk-sublabel" style="margin-top:16px">お知らせ・配信</p>
+      <div class="ed-list" id="ed-notices"></div>
+      <button type="button" class="ed-add" id="add-notice">＋ お知らせを追加</button>
+      <p style="font-size:11.5px;color:var(--mk-sub);margin-top:10px;line-height:1.6">空欄のままなら業態プリセットの内容が使われます。</p>
+    </details>
+
+    <button class="mk-btn" id="btn-gen" style="margin-top:20px">デモ画面を発行する</button>
     <details class="mk-adv">
       <summary>詳細設定（共有用ベースURL）</summary>
       <input class="mk-input" id="f-base" placeholder="https://...">
@@ -3078,7 +3181,81 @@ window.addEventListener("hashchange", route);
 /* ================================================================
    MAKER
 ================================================================ */
-const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false };
+const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false,
+  tone:"fine", logo:"", photo:"", dom:"", coupons:null, notices:null };
+
+/* default tone per industry (単価高め=高級寄り) */
+const TONE_BY_IND = { yakiniku:"lux", izakaya:"fine", cafe:"fine", ramen:"pop" };
+
+/* ---- brand image auto-fetch (サーバー不要 / microlink + favicon fallback) ---- */
+function cleanDomain(v){
+  return String(v||"").trim().replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/\s/g,"");
+}
+function faviconUrl(dom){ return "https://icons.duckduckgo.com/ip3/" + dom + ".ico"; }
+async function fetchBrand(dom){
+  // returns {logo, photo} best-effort. logo falls back to favicon.
+  const out = { logo:"", photo:"" };
+  try{
+    const r = await fetch("https://api.microlink.io/?url=" + encodeURIComponent("https://" + dom), {mode:"cors"});
+    if(r.ok){
+      const j = await r.json();
+      const d = (j && j.data) || {};
+      if(d.logo && d.logo.url) out.logo = d.logo.url;
+      if(d.image && d.image.url) out.photo = d.image.url;
+    }
+  }catch(e){ /* CORS/quota: fall through to favicon */ }
+  if(!out.logo) out.logo = faviconUrl(dom);
+  return out;
+}
+function setPreview(){
+  const bl = $("#bp-logo"), bp = $("#bp-photo");
+  bl.innerHTML = mk.logo ? `<img src="${esc(mk.logo)}" alt="" onerror="this.parentNode.textContent='ロゴ'">` : "ロゴ";
+  bp.innerHTML = mk.photo ? `<img src="${esc(mk.photo)}" alt="" onerror="this.parentNode.textContent='写真'">` : "写真";
+}
+
+/* ---- coupon / notice editors ---- */
+function couponRows(){
+  return $$("#ed-coupons .ed-item").map(el=>({
+    e:  $(".ed-emoji", el).value.trim() || "🎟️",
+    title: $(".ed-title", el).value.trim(),
+    cond:  $(".ed-cond", el).value.trim() || "ご来店ごと",
+    days:  Math.max(1, parseInt($(".ed-days", el).value,10) || 14),
+    img:   $(".ed-img", el).value.trim()
+  })).filter(c=>c.title);
+}
+function noticeRows(){
+  return $$("#ed-notices .ed-item").map(el=>({
+    t: $(".ed-title", el).value.trim(),
+    d: $(".ed-body", el).value.trim()
+  })).filter(n=>n.t);
+}
+function addCouponRow(c){
+  c = c || {};
+  const wrap = document.createElement("div");
+  wrap.className = "ed-item";
+  wrap.innerHTML =
+    `<button type="button" class="ed-del" aria-label="削除">×</button>
+     <input class="mk-input ed-title" placeholder="クーポン名（例：生ビール1杯無料）" maxlength="34" value="${esc(c.title||"")}">
+     <div class="ed-row2">
+       <input class="mk-input ed-emoji" placeholder="🍺" maxlength="2" value="${esc(c.e||"")}">
+       <input class="mk-input ed-cond" placeholder="条件（例：ディナー限定）" maxlength="20" value="${esc(c.cond||"")}">
+       <input class="mk-input ed-days" type="number" min="1" placeholder="有効日数" value="${c.days||14}">
+     </div>
+     <input class="mk-input ed-img" placeholder="クーポン画像URL（任意）" value="${esc(c.img||"")}">`;
+  $(".ed-del", wrap).onclick = ()=> wrap.remove();
+  $("#ed-coupons").appendChild(wrap);
+}
+function addNoticeRow(n){
+  n = n || {};
+  const wrap = document.createElement("div");
+  wrap.className = "ed-item";
+  wrap.innerHTML =
+    `<button type="button" class="ed-del" aria-label="削除">×</button>
+     <input class="mk-input ed-title" placeholder="お知らせタイトル" maxlength="40" value="${esc(n.t||"")}">
+     <input class="mk-input ed-body" placeholder="本文（キャンペーン内容など）" maxlength="120" value="${esc(n.d||"")}">`;
+  $(".ed-del", wrap).onclick = ()=> wrap.remove();
+  $("#ed-notices").appendChild(wrap);
+}
 
 function baseUrl(){
   const v = $("#f-base").value.trim();
@@ -3096,9 +3273,29 @@ function initMaker(){
     mk.ind = b.dataset.k;
     $$(".ind-btn", ig).forEach(x=>{ x.classList.toggle("on", x===b); x.setAttribute("aria-checked", x===b); });
     if(!mk.customColor){ mk.color = PRESETS[mk.ind].color; renderSwatches(); }
+    if(!mk.toneTouched){ setTone(TONE_BY_IND[mk.ind] || "fine"); }
   });
   renderSwatches();
   $("#f-base").value = "";
+
+  // tone selector
+  $("#f-tone").addEventListener("click", e=>{
+    const b = e.target.closest(".tone-btn"); if(!b) return;
+    mk.toneTouched = true; setTone(b.dataset.tone);
+  });
+
+  // brand image: manual URL inputs
+  $("#f-logo").addEventListener("input", e=>{ mk.logo = e.target.value.trim(); setPreview(); });
+  $("#f-photo").addEventListener("input", e=>{ mk.photo = e.target.value.trim(); setPreview(); });
+
+  // brand image: auto fetch
+  $("#btn-fetch").addEventListener("click", doFetch);
+  $("#f-dom").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); doFetch(); } });
+
+  // editors
+  $("#add-coupon").addEventListener("click", ()=>addCouponRow());
+  $("#add-notice").addEventListener("click", ()=>addNoticeRow());
+
   $("#btn-gen").addEventListener("click", generate);
   $("#btn-copy").addEventListener("click", copyUrl);
   $("#btn-preview").addEventListener("click", ()=>{
@@ -3107,10 +3304,16 @@ function initMaker(){
   });
   $("#btn-new").addEventListener("click", ()=>{
     $("#f-name").value = ""; $("#f-banner").value = "";
+    $("#f-dom").value = ""; $("#f-logo").value = ""; $("#f-photo").value = "";
+    mk.logo = ""; mk.photo = ""; mk.dom = ""; setPreview();
+    $("#bp-hint").textContent = "ドメインを入れて「自動取得」。うまく出ないときは下で画像URLを直接指定できます（相手HPの画像を右クリック→「画像アドレスをコピー」）。";
+    $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
+    mk.toneTouched = false; setTone(TONE_BY_IND[mk.ind] || "fine");
     $("#mk-result").hidden = true;
     $("#f-name").focus();
   });
   renderHistory();
+  setTone(TONE_BY_IND[mk.ind] || "fine");
   // restore last inputs
   try{
     const last = JSON.parse(localStorage.getItem("tp-last") || "null");
@@ -3121,6 +3324,8 @@ function initMaker(){
       if(last.c){ mk.color = last.c; mk.customColor = last.c !== PRESETS[mk.ind].color; }
       $$(".ind-btn", ig).forEach(x=>{ const on = x.dataset.k===mk.ind; x.classList.toggle("on",on); x.setAttribute("aria-checked",on); });
       renderSwatches();
+      if(last.tn){ mk.toneTouched = true; setTone(last.tn); }
+      else setTone(TONE_BY_IND[mk.ind] || "fine");
     }
   }catch(e){}
 }
@@ -3141,6 +3346,34 @@ function renderSwatches(){
     $$(".sw", row).forEach(x=>x.classList.remove("on"));
   });
 }
+function setTone(tone){
+  mk.tone = tone;
+  $$("#f-tone .tone-btn").forEach(b=>{
+    const on = b.dataset.tone === tone;
+    b.classList.toggle("on", on); b.setAttribute("aria-checked", on);
+  });
+}
+async function doFetch(){
+  const dom = cleanDomain($("#f-dom").value);
+  if(!dom){ $("#f-dom").focus(); return; }
+  const btn = $("#btn-fetch");
+  btn.disabled = true; btn.classList.add("busy"); btn.textContent = "取得中…";
+  $("#bp-hint").textContent = "相手企業のロゴ・写真を取得しています…";
+  try{
+    const b = await fetchBrand(dom);
+    mk.dom = dom;
+    mk.logo = b.logo || ""; mk.photo = b.photo || "";
+    $("#f-logo").value = mk.logo; $("#f-photo").value = mk.photo;
+    setPreview();
+    $("#bp-hint").textContent = mk.photo
+      ? "取得しました。イメージが違う場合は「画像URLを手動で指定」から差し替えできます。"
+      : "ロゴを取得しました。メイン写真は自動取得できなかったので、必要なら手動でURL指定してください。";
+  }catch(e){
+    $("#bp-hint").textContent = "自動取得できませんでした。お手数ですが「画像URLを手動で指定」から入れてください。";
+  }finally{
+    btn.disabled = false; btn.classList.remove("busy"); btn.textContent = "自動取得";
+  }
+}
 function readForm(){
   const cfg = {
     n: $("#f-name").value.trim() || PRESETS[mk.ind].label + "のお店",
@@ -3149,6 +3382,12 @@ function readForm(){
   };
   const t = $("#f-banner").value.trim();
   if(t) cfg.t = t;
+  cfg.tn = mk.tone || "fine";
+  if(mk.dom) cfg.dom = mk.dom;
+  if(mk.logo) cfg.lg = mk.logo;
+  if(mk.photo) cfg.ph = mk.photo;
+  const cps = couponRows(); if(cps.length) cfg.cp = cps;
+  const nts = noticeRows(); if(nts.length) cfg.nt = nts;
   return cfg;
 }
 function generate(){
@@ -3171,9 +3410,18 @@ function generate(){
   $("#mk-result").scrollIntoView({behavior:"smooth", block:"start"});
 }
 function drawQR(text, canvas){
-  const qr = qrcode(0, "M");
-  qr.addData(text, "Byte");
-  qr.make();
+  let qr = null;
+  for(const ec of ["M","L"]){
+    try{ const q = qrcode(0, ec); q.addData(text, "Byte"); q.make(); qr = q; break; }
+    catch(e){ /* too long for this EC level, try next */ }
+  }
+  const note = $(".qr-note");
+  if(!qr){
+    canvas.width = canvas.height = 1;
+    if(note) note.innerHTML = "⚠️ 画像URLが長くQRが作れませんでした。<br>URLはコピーして共有できます（短い画像URLの利用も有効です）。";
+    return;
+  }
+  if(note) note.innerHTML = "相手のスマホカメラをかざしてもらうと、<br>そのままデモ画面が開きます。";
   const n = qr.getModuleCount();
   const quiet = 4, scale = Math.max(8, Math.ceil(464 / (n + quiet*2)));
   const size = (n + quiet*2) * scale;
@@ -3216,6 +3464,13 @@ function renderHistory(){
     mk.ind = x.i; mk.color = x.c; mk.customColor = x.c !== PRESETS[x.i].color;
     $$(".ind-btn").forEach(el=>{ const on = el.dataset.k===x.i; el.classList.toggle("on",on); el.setAttribute("aria-checked",on); });
     renderSwatches();
+    // restore brand image / tone / editors
+    mk.logo = x.lg || ""; mk.photo = x.ph || ""; mk.dom = x.dom || "";
+    $("#f-logo").value = mk.logo; $("#f-photo").value = mk.photo; $("#f-dom").value = mk.dom;
+    setPreview();
+    mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
+    $("#ed-coupons").innerHTML = ""; (x.cp||[]).forEach(addCouponRow);
+    $("#ed-notices").innerHTML = ""; (x.nt||[]).forEach(addNoticeRow);
     generate();
   };
 }
@@ -3234,6 +3489,7 @@ function startDemo(cfg){
   phone.style.setProperty("--brand-ink", ink);
   phone.style.setProperty("--brand-soft", mix("#FFFFFF", brand, 0.12));
   phone.style.setProperty("--brand-deep", mix(brand, "#000000", 0.25));
+  phone.setAttribute("data-tone", cfg.tn || TONE_BY_IND[cfg.i] || "fine");
 
   const h = nameHash(cfg.n);
   D = {
@@ -3279,6 +3535,16 @@ function closeSheet(){
 $("#ovl").addEventListener("click", e=>{ if(e.target === $("#ovl")) closeSheet(); });
 
 function logoChar(name){ return esc(name.trim().charAt(0) || "T"); }
+function miniLogo(cfg){
+  return cfg.lg
+    ? `<span class="mini-logo"><img src="${esc(cfg.lg)}" alt="" onerror="this.parentNode.textContent='${logoChar(cfg.n)}'"></span>`
+    : `<span class="mini-logo">${logoChar(cfg.n)}</span>`;
+}
+function bigLogo(cfg){
+  return cfg.lg
+    ? `<span class="big-logo"><img src="${esc(cfg.lg)}" alt="" onerror="this.parentNode.textContent='${logoChar(cfg.n)}'"></span>`
+    : `<span class="big-logo">${logoChar(cfg.n)}</span>`;
+}
 
 const NAV = [
   {k:"home", label:"ホーム", ic:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'},
@@ -3323,26 +3589,33 @@ function homeHtml(){
   const daysLeft = Math.max(1, Math.round((mEnd - now)/86400000));
   const fmt = d => `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
   const rank = rankInfo();
+  const CPBG = ["#3E2B1E","#5A1F1A","#274060","#42321E","#2B4232","#7A4A2B"];
+  const cpSrc = (cfg.cp && cfg.cp.length) ? cfg.cp : P.coupons;
   const coupons = [
     ...D.bonusCoupons.map((c,i)=>({...c, id:"bonus"+i, nw:true})),
-    ...P.coupons.map((c,i)=>({...c, id:"cp"+i}))
+    ...cpSrc.map((c,i)=>({...c, bg:c.bg||CPBG[i%CPBG.length], id:"cp"+i}))
   ];
   const expDate = days => { const d = new Date(Date.now()+days*86400000); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} まで有効`; };
 
   return `
   <header class="app-head">
-    <span class="mini-logo">${logoChar(cfg.n)}</span>
+    ${miniLogo(cfg)}
     <span class="ttl">${esc(cfg.n)}</span>
   </header>
   <div class="open-pill"><span class="op">現在営業中</span>${esc(cfg.n)}<span style="margin-left:auto">🗓</span></div>
 
   <div class="banner-wrap" id="banners">
-    ${banners.map((b,i)=>`
-      <div class="banner" style="background:linear-gradient(120deg, var(--brand-deep), var(--brand) 70%, ${mix(D.brand,"#FFFFFF",0.25)})">
+    ${banners.map((b,i)=>{
+      const useP = i===0 && cfg.ph;
+      const st = useP
+        ? `background-image:url('${esc(cfg.ph)}');background-size:cover;background-position:center`
+        : `background:linear-gradient(120deg, var(--brand-deep), var(--brand) 70%, ${mix(D.brand,"#FFFFFF",0.25)})`;
+      return `
+      <div class="banner${useP?" has-photo":""}" style="${st}">
         ${i===0?'<span class="b-new">NEW</span>':""}
         <h3>${esc(b.t)}</h3><p>${esc(b.s)}</p>
         <span class="b-e">${b.e}</span>
-      </div>`).join("")}
+      </div>`;}).join("")}
   </div>
   <div class="b-dots">${banners.map((_,i)=>`<i class="${i===0?"on":""}"></i>`).join("")}</div>
 
@@ -3350,7 +3623,7 @@ function homeHtml(){
     <div class="v-grp">${esc(cfg.n)} 公式会員証</div>
     <div class="v-name">${rank.name === "ゴールド" ? "GOLD" : "VIP"} Card</div>
     <div class="v-no">${D.memberNo}</div>
-    <div class="v-badge">🏅</div>
+    <div class="v-badge${cfg.lg?" has-logo":""}">${cfg.lg?`<img src="${esc(cfg.lg)}" alt="" onerror="this.parentNode.textContent='🏅'">`:"🏅"}</div>
     <div class="v-rank">${rank.name}<br>${rank.perk}</div>
   </div>
 
@@ -3403,7 +3676,7 @@ function homeHtml(){
     ${coupons.map(c=>`
       <button class="cp-card${D.usedCoupons[c.id]?" used":""}" data-cp="${c.id}">
         ${c.nw?'<span class="cp-new">NEW</span>':""}
-        <span class="cp-img" style="background:${c.bg}"><span class="cp-frame"></span>${c.e}</span>
+        <span class="cp-img${c.img?" cp-photo":""}" style="${c.img?`background-image:url('${esc(c.img)}')`:`background:${c.bg}`}"><span class="cp-frame"></span><span class="cp-e">${c.e}</span></span>
         <span class="cp-body"><b>${esc(c.title)}</b><span class="cp-tag">${esc(c.cond)}</span>
         <span class="cp-meta">🎫 クーポン</span></span>
         <span class="cp-exp">⏳ ${expDate(c.days)}</span>
@@ -3473,7 +3746,8 @@ function bindHome(sc){
 function findCoupon(id){
   if(id.startsWith("bonus")) return {...D.bonusCoupons[+id.slice(5)], id};
   const i = +id.slice(2);
-  return {...D.P.coupons[i], id};
+  const src = (D.cfg.cp && D.cfg.cp.length) ? D.cfg.cp : D.P.coupons;
+  return {...src[i], id};
 }
 function openCoupon(id){
   const c = findCoupon(id);
@@ -3795,12 +4069,15 @@ function openPicker(){
 /* ---------- news / info ---------- */
 function newsHtml(){
   const {cfg, P} = D;
+  const notices = (cfg.nt && cfg.nt.length)
+    ? cfg.nt.map((n,i)=>({...n, nw:i===0}))
+    : P.notices;
   return `
   <header class="app-head">
-    <span class="mini-logo">${logoChar(cfg.n)}</span>
+    ${miniLogo(cfg)}
     <span class="ttl">お知らせ</span>
   </header>
-  ${P.notices.map((n,i)=>`
+  ${notices.map((n,i)=>`
     <button class="nt-card" data-nt="${i}">
       <span class="nt-top">${n.nw?'<span class="nt-new">NEW</span>':""}<span class="nt-d">${n.nw?"今日":"3日前"}</span></span>
       <b>${esc(n.t)}</b>
@@ -3818,11 +4095,11 @@ function infoHtml(){
   const {cfg, P} = D;
   return `
   <header class="app-head">
-    <span class="mini-logo">${logoChar(cfg.n)}</span>
+    ${miniLogo(cfg)}
     <span class="ttl">店舗情報</span>
   </header>
-  <div class="info-hero">
-    <span class="big-logo">${logoChar(cfg.n)}</span>
+  <div class="info-hero${cfg.ph?" has-photo":""}"${cfg.ph?` style="background-image:url('${esc(cfg.ph)}')"`:""}>
+    ${bigLogo(cfg)}
     <h3>${esc(cfg.n)}</h3>
     <p>${esc(P.info)}</p>
   </div>
@@ -3855,5 +4132,4 @@ initMaker();
 route();
 </script>
 
-</body>
-</html>
+</body></html>
