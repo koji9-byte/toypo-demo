@@ -116,13 +116,16 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 
 /* ---- photo upload ---- */
 .mk-sublabel{font-size:11.5px;font-weight:700;color:var(--mk-sub);margin:12px 0 6px}
-.photo-row{display:flex;gap:12px;align-items:center}
-.photo-prev{width:96px;height:60px;border-radius:11px;background:var(--mk-bg);border:1px solid var(--mk-line);overflow:hidden;flex:0 0 96px;display:grid;place-items:center;font-size:22px;color:var(--mk-sub)}
-.photo-prev img{width:100%;height:100%;object-fit:cover;display:block}
-.photo-actions{flex:1;display:flex;flex-direction:column;gap:7px}
-.mk-upload-btn{border:1.5px solid var(--mk-line);background:var(--mk-bg);border-radius:10px;padding:10px 12px;font-weight:700;font-size:13px;color:var(--mk-ink);text-align:center}
+.photo-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.photo-thumb{position:relative;width:78px;height:60px;border-radius:10px;overflow:hidden;border:1px solid var(--mk-line);background:var(--mk-bg);flex:0 0 78px}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-thumb .pt-del{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(20,20,22,.72);color:#fff;font-size:13px;line-height:20px;text-align:center}
+.photo-thumb .pt-main{position:absolute;bottom:0;left:0;right:0;background:rgba(20,20,22,.62);color:#fff;font-size:8.5px;font-weight:700;text-align:center;padding:1px 0;letter-spacing:.04em}
+.photo-empty{width:100%;font-size:12px;color:var(--mk-sub);padding:14px;text-align:center;border:1.5px dashed var(--mk-line);border-radius:11px}
+.photo-actions-row{display:flex;gap:8px}
+.mk-upload-btn{flex:1;border:1.5px solid var(--mk-line);background:var(--mk-bg);border-radius:10px;padding:10px 12px;font-weight:700;font-size:13px;color:var(--mk-ink);text-align:center}
 .mk-upload-btn:hover{border-color:var(--mk-sub)}
-.mk-clear-btn{font-size:12px;color:var(--mk-sub);font-weight:600;text-align:left;padding:0}
+.mk-clear-btn{flex:0 0 auto;font-size:12px;color:var(--mk-sub);font-weight:600;padding:0 8px}
 .photo-hint{font-size:11px;color:var(--mk-sub);line-height:1.5;margin-top:8px}
 
 /* ---- tone selector ---- */
@@ -152,6 +155,9 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .info-hero.has-photo{position:relative;color:#fff;background-size:cover;background-position:center}
 .info-hero.has-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.30),rgba(0,0,0,.70))}
 .info-hero.has-photo>*{position:relative;z-index:1}
+.info-gallery{display:flex;gap:9px;overflow-x:auto;padding:0 16px 2px;margin-left:0;scrollbar-width:none}
+.info-gallery::-webkit-scrollbar{display:none}
+.info-gallery .ig-item{flex:0 0 132px;height:96px;border-radius:11px;background-size:cover;background-position:center;background-color:var(--brand-soft)}
 
 /* ================= DEMO: premium coupon design ================= */
 .cp-card{border:1px solid transparent}
@@ -633,18 +639,19 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
     </div>
 
     <div class="mk-field">
-      <label class="mk-label">メイン写真<small>任意・料理や店内の写真で一気に本物感が出ます</small></label>
-      <div class="photo-row">
-        <span class="photo-prev" id="photo-prev">🖼️</span>
-        <div class="photo-actions">
-          <button type="button" class="mk-upload-btn" id="btn-upload">写真をアップロード</button>
-          <button type="button" class="mk-clear-btn" id="btn-photo-clear" hidden>× 写真を削除</button>
-        </div>
+      <label class="mk-label">写真<small>最大5枚・1枚目がメイン。バナー/クーポン/店舗情報に反映されます</small></label>
+      <div class="photo-strip" id="photo-strip"></div>
+      <div class="photo-actions-row">
+        <button type="button" class="mk-upload-btn" id="btn-upload">＋ 写真を追加</button>
+        <button type="button" class="mk-clear-btn" id="btn-photo-clear" hidden>すべて削除</button>
       </div>
-      <input type="file" id="f-photo-file" accept="image/*" hidden>
+      <input type="file" id="f-photo-file" accept="image/*" multiple hidden>
       <details class="mk-adv" style="margin-top:10px">
-        <summary>画像URLで指定する（HPの画像を使う場合）</summary>
-        <input class="mk-input" id="f-photo" placeholder="https://.../photo.jpg" autocomplete="off" style="margin-top:10px">
+        <summary>画像URLで追加する（HPの画像を使う場合）</summary>
+        <div class="mk-fetch" style="margin-top:10px">
+          <input class="mk-input" id="f-photo" placeholder="https://.../photo.jpg" autocomplete="off">
+          <button type="button" class="mk-mini-btn" id="btn-photo-add">追加</button>
+        </div>
         <p>相手企業HPの画像を右クリック→「画像アドレスをコピー」で貼り付け。URL指定ならQRコードもそのまま使えます（アップロード写真は共有リンクでの配布になります）。</p>
       </details>
     </div>
@@ -3502,7 +3509,8 @@ window.addEventListener("hashchange", route);
    MAKER
 ================================================================ */
 const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false,
-  tone:"fine", photo:"" };
+  tone:"fine", photo:"", photos:[] };
+const MAX_PHOTOS = 5;
 
 /* default tone per industry (単価高め=高級寄り) */
 const TONE_BY_IND = { yakiniku:"lux", izakaya:"fine", cafe:"fine", ramen:"pop",
@@ -3557,12 +3565,51 @@ function cleanTitle(t){
   s = s.replace(/\s*(の(公式|ご予約|予約|メニュー|アクセス|クーポン|地図).*|公式(サイト|ホームページ|ＨＰ|HP).*|【.*?】)/g, "").trim();
   return s;
 }
+function looksLikePhoto(u){
+  const s = u.toLowerCase();
+  if(/\.(svg|gif)(\?|$|#)/.test(s)) return false;
+  if(/(sprite|favicon|logo|blank|spacer|1x1|pixel|avatar|badge|_btn|\/btn|button|loading|noimage|no[_-]?image|dummy|placeholder|\/static\/|gtm|analytics|tracking|beacon)/.test(s)) return false;
+  if(/(\/header\/|\/footer\/|\/gnav|\/gheader|\/gfooter|\/nav\/|\/global\/|\/parts\/|\/common\/images\/|_icon|\/icons?\/|\/ico\/)/.test(s)) return false;
+  if(/\.(jpe?g|png|webp)(\?|$|#)/.test(s)) return true;
+  if(/(\/img\/|\/images?\/|\/photo|\/upload|cloudfront|cloudinary|\.cdn|imgix|\.image|sku_images)/.test(s)) return true;
+  return false;
+}
+// ページを読み取りサービス経由で取得し、複数の写真URLを抽出（best-effort・サーバー不要）
+async function fetchPageImages(url, primary){
+  const out = [], seen = new Set();
+  const add = u => { if(u && out.length<MAX_PHOTOS && !seen.has(u) && /^https?:/.test(u) && looksLikePhoto(u)){ seen.add(u); out.push(u); } };
+  if(primary) add(primary);
+  // 1) Jina Reader: JSレンダリング対応でSPAサイトにも強い
+  try{
+    const res = await fetch("https://r.jina.ai/" + url);
+    if(res.ok){
+      const txt = await res.text();
+      const re = /https?:\/\/[^\s)"'<>\]]+?\.(?:jpe?g|png|webp)(?:\?[^\s)"'<>\]]*)?/gi;
+      let m; while((m = re.exec(txt)) && out.length < MAX_PHOTOS){ add(m[0]); }
+    }
+  }catch(e){}
+  // 2) fallback: allorigins raw HTML
+  if(out.length < 2){
+    try{
+      const res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url));
+      if(res.ok){
+        const html = await res.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const base = new URL(url);
+        const abs = s => { try{ return new URL(s, base).href.split("#")[0]; }catch(e){ return null; } };
+        doc.querySelectorAll('meta[property="og:image"],meta[name="twitter:image"]').forEach(mt=>add(abs(mt.getAttribute("content"))));
+        for(const im of doc.querySelectorAll("img")){ if(out.length>=MAX_PHOTOS) break; add(abs(im.getAttribute("src")||im.getAttribute("data-src")||im.getAttribute("data-original")||im.getAttribute("data-lazy-src"))); }
+      }
+    }catch(e){}
+  }
+  return out.slice(0, MAX_PHOTOS);
+}
 async function autofillFromUrl(){
   const url = $("#f-url").value.trim();
   if(!url){ $("#f-url").focus(); return; }
   const btn = $("#btn-url"), hint = $("#url-hint");
   btn.disabled = true; btn.textContent = "読込中…";
-  hint.textContent = "URLから情報を読み込んでいます…";
+  hint.textContent = "URLから情報を読み込んでいます…（写真の枚数によっては数秒かかります）";
   try{
     const r = await fetch("https://api.microlink.io/?url=" + encodeURIComponent(url));
     const j = await r.json();
@@ -3571,11 +3618,13 @@ async function autofillFromUrl(){
     const got = [];
     const name = cleanTitle(d.title);
     if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
-    if(d.image && d.image.url){ mk.photo = d.image.url; $("#f-photo").value = ""; setPhotoPreview(); got.push("メイン写真"); }
+    const primary = (d.image && d.image.url) ? d.image.url : "";
+    const imgs = await fetchPageImages(url, primary);
+    if(imgs.length){ mk.photos = imgs; syncPrimary(); renderPhotoStrip(); $("#f-photo").value = ""; got.push(imgs.length+"枚の写真"); }
     const g = guessIndustry([d.title, d.description, url].join(" "));
     if(g){ applyIndustry(g); got.push("業態（"+PRESETS[g].label+"）"); }
     hint.innerHTML = got.length
-      ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。内容を確認して、必要なら調整してください。`
+      ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。写真は不要なものを×で外せます。内容を確認して調整してください。`
       : "情報を取得できませんでした。お手数ですが手動で入力してください。";
   }catch(e){
     hint.textContent = "このURLからは自動取得できませんでした（Instagram・食べログ等は非対応の場合があります）。手動で入力してください。";
@@ -3583,15 +3632,35 @@ async function autofillFromUrl(){
     btn.disabled = false; btn.textContent = "読み込む";
   }
 }
-function setPhotoPreview(){
-  const p = $("#photo-prev");
-  if(mk.photo){
-    p.innerHTML = `<img src="${esc(mk.photo)}" alt="" onerror="this.parentNode.textContent='🖼️'">`;
-    $("#btn-photo-clear").hidden = false;
-  }else{
-    p.textContent = "🖼️";
-    $("#btn-photo-clear").hidden = true;
+function syncPrimary(){ mk.photo = mk.photos[0] || ""; }
+function addPhotos(list){
+  for(const u of list){
+    if(!u) continue;
+    if(mk.photos.length >= MAX_PHOTOS) break;
+    if(mk.photos.includes(u)) continue;
+    mk.photos.push(u);
   }
+  syncPrimary(); renderPhotoStrip();
+}
+function renderPhotoStrip(){
+  const strip = $("#photo-strip");
+  if(!mk.photos.length){
+    strip.innerHTML = `<div class="photo-empty">写真がありません。「＋ 写真を追加」またはURL自動取得で追加できます。</div>`;
+    $("#btn-photo-clear").hidden = true;
+    return;
+  }
+  strip.innerHTML = mk.photos.map((u,i)=>`
+    <div class="photo-thumb" data-i="${i}">
+      <img src="${esc(u)}" alt="" onerror="this.parentNode.classList.add('bad')">
+      ${i===0?'<span class="pt-main">メイン</span>':""}
+      <button type="button" class="pt-del" data-del="${i}" aria-label="削除">×</button>
+    </div>`).join("") +
+    (mk.photos.length<MAX_PHOTOS?"":"");
+  $("#btn-photo-clear").hidden = false;
+  strip.onclick = e=>{
+    const d = e.target.closest("[data-del]");
+    if(d){ mk.photos.splice(+d.dataset.del,1); syncPrimary(); renderPhotoStrip(); }
+  };
 }
 
 /* ---- banner / coupon / notice editors ---- */
@@ -3726,24 +3795,28 @@ function initMaker(){
   $("#btn-url").addEventListener("click", autofillFromUrl);
   $("#f-url").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); autofillFromUrl(); } });
 
-  // main photo: URL input
-  $("#f-photo").addEventListener("input", e=>{ mk.photo = e.target.value.trim(); setPhotoPreview(); });
-  // main photo: upload from device
+  // photos: add by URL
+  $("#btn-photo-add").addEventListener("click", ()=>{
+    const v = $("#f-photo").value.trim(); if(!v) return;
+    addPhotos([v]); $("#f-photo").value = "";
+  });
+  $("#f-photo").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); $("#btn-photo-add").click(); } });
+  // photos: upload from device (multiple)
   $("#btn-upload").addEventListener("click", ()=> $("#f-photo-file").click());
   $("#f-photo-file").addEventListener("change", async e=>{
-    const f = e.target.files && e.target.files[0]; if(!f) return;
+    const files = Array.from(e.target.files || []); if(!files.length) return;
     const btn = $("#btn-upload"); btn.textContent = "圧縮中…"; btn.disabled = true;
-    try{
-      mk.photo = await compressImage(f, 900, 0.72);
-      $("#f-photo").value = "";
-      setPhotoPreview();
-    }catch(err){ /* ignore */ }
-    btn.textContent = "写真をアップロード"; btn.disabled = false;
+    for(const f of files){
+      if(mk.photos.length >= MAX_PHOTOS) break;
+      try{ addPhotos([await compressImage(f, 900, 0.72)]); }catch(err){}
+    }
+    btn.textContent = "＋ 写真を追加"; btn.disabled = false;
     e.target.value = "";
   });
   $("#btn-photo-clear").addEventListener("click", ()=>{
-    mk.photo = ""; $("#f-photo").value = ""; setPhotoPreview();
+    mk.photos = []; $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
   });
+  renderPhotoStrip();
 
   // editors
   $("#add-banner").addEventListener("click", ()=>addBannerRow());
@@ -3759,7 +3832,7 @@ function initMaker(){
   $("#btn-new").addEventListener("click", ()=>{
     $("#f-name").value = ""; $("#f-banner").value = ""; $("#f-photo").value = "";
     $("#f-url").value = ""; $("#url-hint").textContent = "※ Instagramや一部サイトは取得できません。取得後は内容をご確認ください。";
-    mk.photo = ""; setPhotoPreview();
+    mk.photos = []; syncPrimary(); renderPhotoStrip();
     $("#ed-banners").innerHTML = ""; $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
     mk.toneTouched = false; setTone(TONE_BY_IND[mk.ind] || "fine");
     $("#mk-result").hidden = true;
@@ -3815,7 +3888,7 @@ function readForm(){
   const t = $("#f-banner").value.trim();
   if(t) cfg.t = t;
   cfg.tn = mk.tone || "fine";
-  if(mk.photo) cfg.ph = mk.photo;
+  if(mk.photos.length){ cfg.ph = mk.photos[0]; if(mk.photos.length>1) cfg.phs = mk.photos.slice(0,MAX_PHOTOS); }
   const bns = bannerRows(); if(bns.length) cfg.bn = bns;
   const cps = couponRows(); if(cps.length) cfg.cp = cps;
   const nts = noticeRows(); if(nts.length) cfg.nt = nts;
@@ -3895,9 +3968,9 @@ function renderHistory(){
     mk.ind = x.i; mk.color = x.c; mk.customColor = x.c !== PRESETS[x.i].color;
     $$(".ind-btn").forEach(el=>{ const on = el.dataset.k===x.i; el.classList.toggle("on",on); el.setAttribute("aria-checked",on); });
     renderSwatches();
-    // restore photo / tone / editors
-    mk.photo = x.ph || ""; $("#f-photo").value = (x.ph && x.ph.startsWith("http")) ? x.ph : "";
-    setPhotoPreview();
+    // restore photos / tone / editors
+    mk.photos = (x.phs && x.phs.length) ? x.phs.slice() : (x.ph ? [x.ph] : []);
+    $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
     mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
     $("#ed-banners").innerHTML = ""; (x.bn||[]).forEach(addBannerRow);
     $("#ed-coupons").innerHTML = ""; (x.cp||[]).forEach(addCouponRow);
@@ -3969,6 +4042,7 @@ $("#ovl").addEventListener("click", e=>{ if(e.target === $("#ovl")) closeSheet()
 function logoChar(name){ return esc(name.trim().charAt(0) || "T"); }
 function miniLogo(cfg){ return `<span class="mini-logo">${logoChar(cfg.n)}</span>`; }
 function bigLogo(cfg){ return `<span class="big-logo">${logoChar(cfg.n)}</span>`; }
+function demoPhotos(cfg){ return (cfg.phs && cfg.phs.length) ? cfg.phs : (cfg.ph ? [cfg.ph] : []); }
 
 const NAV = [
   {k:"home", label:"ホーム", ic:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'},
@@ -4035,6 +4109,13 @@ function homeHtml(){
     ...D.bonusCoupons.map((c,i)=>({...c, id:"bonus"+i, nw:true})),
     ...cpSrc.map((c,i)=>({...c, bg:c.bg||CPBG[i%CPBG.length], id:"cp"+i}))
   ];
+  // 取得写真が複数あれば、写真未設定のクーポンにメイン以外の写真を割り当てて本物感を出す
+  const phs = demoPhotos(cfg);
+  if(phs.length >= 2){
+    const pool = phs.slice(1);
+    let pi = 0;
+    coupons.forEach(c=>{ if(!c.img){ c.img = pool[pi % pool.length]; pi++; } });
+  }
   const expDate = days => { const d = new Date(Date.now()+days*86400000); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} まで有効`; };
 
   return `
@@ -4671,6 +4752,9 @@ function infoHtml(){
     <h3>${esc(cfg.n)}</h3>
     <p>${esc(P.info)}</p>
   </div>
+  ${(()=>{ const phs = demoPhotos(cfg); return phs.length>1 ? `
+  <div class="sec" style="margin-top:16px"><div class="sec-h"><h2>写真</h2><span class="more">すべて見る</span></div></div>
+  <div class="info-gallery">${phs.map(u=>`<div class="ig-item" style="background-image:url('${esc(u)}')"></div>`).join("")}</div>` : ""; })()}
   <div class="info-table">
     <div class="info-tr"><span class="k">営業時間</span><span class="v">11:30〜15:00 / 17:00〜23:00<br>（L.O. 22:30）</span></div>
     <div class="info-tr"><span class="k">定休日</span><span class="v">不定休</span></div>
