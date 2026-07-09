@@ -102,6 +102,18 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .hist-chip .dot{width:10px;height:10px;border-radius:50%}
 .mk-steps{font-size:13px;color:var(--mk-sub);line-height:2;padding-left:2px}
 
+/* ---- URL autofill ---- */
+.mk-url{background:color-mix(in srgb,var(--tp) 6%,var(--mk-card));border:1.5px solid color-mix(in srgb,var(--tp) 24%,var(--mk-line));border-radius:13px;padding:14px;margin-bottom:18px}
+.mk-url .mk-url-h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;margin-bottom:3px}
+.mk-url .mk-url-h .tag{font-size:9.5px;font-weight:800;color:#fff;background:var(--tp);border-radius:5px;padding:2px 6px;letter-spacing:.04em}
+.mk-url .mk-url-sub{font-size:11px;color:var(--mk-sub);line-height:1.55;margin-bottom:10px}
+.mk-fetch{display:flex;gap:8px}
+.mk-fetch .mk-input{flex:1;min-width:0}
+.mk-mini-btn{flex:0 0 auto;border-radius:10px;background:var(--tp);color:#fff;font-weight:700;font-size:13px;padding:0 16px;white-space:nowrap}
+.mk-mini-btn:disabled{opacity:.55}
+.url-hint{font-size:11.5px;color:var(--mk-sub);line-height:1.55;margin-top:9px}
+.url-hint b{color:var(--mk-ink)}
+
 /* ---- photo upload ---- */
 .mk-sublabel{font-size:11.5px;font-weight:700;color:var(--mk-sub);margin:12px 0 6px}
 .photo-row{display:flex;gap:12px;align-items:center}
@@ -594,6 +606,15 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
   </header>
 
   <section class="mk-card">
+    <div class="mk-url">
+      <div class="mk-url-h"><span class="tag">時短</span>URLから下書きを自動作成</div>
+      <p class="mk-url-sub">HP・ホットペッパー・食べログ等のURLを貼ると、店名・写真・業態を自動入力します（下書きなので、あとで自由に調整できます）。</p>
+      <div class="mk-fetch">
+        <input class="mk-input" id="f-url" placeholder="例：https://www.hotpepper.jp/str.../" autocomplete="off" inputmode="url">
+        <button type="button" class="mk-mini-btn" id="btn-url">読み込む</button>
+      </div>
+      <p class="url-hint" id="url-hint">※ Instagramや一部サイトは取得できません。取得後は内容をご確認ください。</p>
+    </div>
     <div class="mk-field">
       <label class="mk-label" for="f-name">店名・ブランド名</label>
       <input class="mk-input" id="f-name" placeholder="例：焼肉 やまだ 渋谷本店" maxlength="30" autocomplete="off">
@@ -3507,6 +3528,61 @@ async function compressImage(file, maxW, quality){
   cv.getContext("2d").drawImage(img, 0, 0, w, h);
   return cv.toDataURL("image/jpeg", quality);
 }
+/* ---- URL autofill（メタ情報から下書き生成・サーバー不要） ---- */
+const IND_KEYWORDS = [
+  ["yakiniku", ["焼肉","焼き肉","ホルモン","yakiniku","ステーキ","steak","鉄板","炭火"]],
+  ["ramen",    ["ラーメン","らーめん","中華そば","つけ麺","ramen","餃子","担々"]],
+  ["cafe",     ["カフェ","cafe","coffee","コーヒー","ベーカリー","パン屋","bakery","スイーツ","喫茶","パンケーキ"]],
+  ["bar",      ["バー","ラウンジ","lounge","ワインバー","cocktail","カクテル","スナック"," shot bar","ダイニングバー"]],
+  ["izakaya",  ["居酒屋","酒場","和食","日本料理","割烹","寿司","鮨","izakaya","ダイニング","炉端","海鮮"]],
+  ["relax",    ["整体","リラク","マッサージ","massage","治療院","接骨","整骨","鍼","もみほぐし","リフレ","spa","スパ","ボディケア","カイロ"]],
+  ["beauty",   ["美容室","美容院","ヘアサロン","hair","ヘアー","カット","カラー","ネイルサロン","ネイル","nail","エステ","まつげ","アイラッシュ","理容","バーバー","barber"]],
+  ["fitness",  ["ジム","gym","フィットネス","fitness","トレーニング","パーソナル","ヨガ","yoga","ピラティス","加圧"]],
+  ["retail",   ["アパレル","apparel","セレクトショップ","boutique","雑貨","物販","fashion","衣料","古着","ショップ"]]
+];
+function guessIndustry(text){
+  const s = (text||"").toLowerCase();
+  for(const [key, kws] of IND_KEYWORDS){ if(kws.some(k=>s.includes(k.toLowerCase()))) return key; }
+  return null;
+}
+function applyIndustry(key){
+  mk.ind = key;
+  $$(".ind-btn").forEach(el=>{ const on = el.dataset.k===key; el.classList.toggle("on",on); el.setAttribute("aria-checked",on); });
+  if(!mk.customColor){ mk.color = PRESETS[key].color; }
+  renderSwatches();
+  if(!mk.toneTouched){ setTone(TONE_BY_IND[key] || "fine"); }
+}
+function cleanTitle(t){
+  let s = (t||"").split(/[|｜\-–—:：]/)[0].trim();
+  s = s.replace(/\s*(の(公式|ご予約|予約|メニュー|アクセス|クーポン|地図).*|公式(サイト|ホームページ|ＨＰ|HP).*|【.*?】)/g, "").trim();
+  return s;
+}
+async function autofillFromUrl(){
+  const url = $("#f-url").value.trim();
+  if(!url){ $("#f-url").focus(); return; }
+  const btn = $("#btn-url"), hint = $("#url-hint");
+  btn.disabled = true; btn.textContent = "読込中…";
+  hint.textContent = "URLから情報を読み込んでいます…";
+  try{
+    const r = await fetch("https://api.microlink.io/?url=" + encodeURIComponent(url));
+    const j = await r.json();
+    if(!j || j.status !== "success" || !j.data) throw new Error("no data");
+    const d = j.data;
+    const got = [];
+    const name = cleanTitle(d.title);
+    if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
+    if(d.image && d.image.url){ mk.photo = d.image.url; $("#f-photo").value = ""; setPhotoPreview(); got.push("メイン写真"); }
+    const g = guessIndustry([d.title, d.description, url].join(" "));
+    if(g){ applyIndustry(g); got.push("業態（"+PRESETS[g].label+"）"); }
+    hint.innerHTML = got.length
+      ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。内容を確認して、必要なら調整してください。`
+      : "情報を取得できませんでした。お手数ですが手動で入力してください。";
+  }catch(e){
+    hint.textContent = "このURLからは自動取得できませんでした（Instagram・食べログ等は非対応の場合があります）。手動で入力してください。";
+  }finally{
+    btn.disabled = false; btn.textContent = "読み込む";
+  }
+}
 function setPhotoPreview(){
   const p = $("#photo-prev");
   if(mk.photo){
@@ -3646,6 +3722,10 @@ function initMaker(){
     mk.toneTouched = true; setTone(b.dataset.tone);
   });
 
+  // URL autofill
+  $("#btn-url").addEventListener("click", autofillFromUrl);
+  $("#f-url").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); autofillFromUrl(); } });
+
   // main photo: URL input
   $("#f-photo").addEventListener("input", e=>{ mk.photo = e.target.value.trim(); setPhotoPreview(); });
   // main photo: upload from device
@@ -3678,6 +3758,7 @@ function initMaker(){
   });
   $("#btn-new").addEventListener("click", ()=>{
     $("#f-name").value = ""; $("#f-banner").value = ""; $("#f-photo").value = "";
+    $("#f-url").value = ""; $("#url-hint").textContent = "※ Instagramや一部サイトは取得できません。取得後は内容をご確認ください。";
     mk.photo = ""; setPhotoPreview();
     $("#ed-banners").innerHTML = ""; $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
     mk.toneTouched = false; setTone(TONE_BY_IND[mk.ind] || "fine");
