@@ -3665,7 +3665,7 @@ function applyIndustry(key){
   if(!mk.customColor){ mk.color = PRESETS[key].color; }
   renderSwatches();
   renderCouponTemplates();
-  mk.menuImgs = {}; renderMenuPhotoEditor();
+  autoAssignMenuPhotos(true);
   if(!mk.toneTouched){ setTone(TONE_BY_IND[key] || "fine"); }
 }
 /* B案簡易版：業態別おすすめの定番クーポン（自動チェック） */
@@ -3768,7 +3768,8 @@ async function autofillFromUrl(){
       mk.photos = imgs.map(x=>x.url);
       mk.photosAlt = imgs.map(x=>x.alt);
       syncPrimary(); renderPhotoStrip(); $("#f-photo").value = "";
-      got.push(imgs.length+"枚の写真");
+      autoAssignMenuPhotos(true); // メニュー全品に自動配置（内容一致優先→残りは順番）
+      got.push(imgs.length+"枚の写真（メニューにも自動配置）");
     }
     const g = guessIndustry([d.title, d.description, url].join(" "));
     if(g){
@@ -3802,6 +3803,7 @@ function addPhotos(list, alts){
     mk.photosAlt.push((alts && alts[i]) || "");
   });
   syncPrimary(); renderPhotoStrip();
+  autoAssignMenuPhotos(false); // まだ写真が無い品にだけ自動配置
 }
 function renderPhotoStrip(){
   const strip = $("#photo-strip");
@@ -3872,6 +3874,21 @@ function checkedTemplates(){
 }
 function defaultTemplateIds(ind){ return industryTemplates(ind).filter(t=>t.on).map(t=>t.id); }
 
+/* ---- menu photo auto-assign（自動で全品に写真→後から編集） ----
+   優先順位: 内容一致(alt/ファイル名) > 残り写真を順番に割当。
+   mk.menuImgs[id] が既にある品（手動指定）や ""（ユーザーが×で外した品）には触らない */
+function autoAssignMenuPhotos(force){
+  if(force) mk.menuImgs = {};
+  if(mk.photos.length){
+    let pi = 0;
+    PRESETS[mk.ind].cats.forEach(cat=>cat.items.forEach(it=>{
+      if(mk.menuImgs[it.id] !== undefined) return;
+      mk.menuImgs[it.id] = findPhotoFor(it.n) || mk.photos[pi++ % mk.photos.length];
+    }));
+  }
+  renderMenuPhotoEditor();
+}
+
 /* ---- menu photo editor（品ごとに写真を指定） ---- */
 function renderMenuPhotoEditor(){
   const box = $("#ed-menu");
@@ -3893,7 +3910,7 @@ function renderMenuPhotoEditor(){
   box.onclick = async e=>{
     const row = e.target.closest(".mn-row"); if(!row) return;
     const id = row.dataset.mid;
-    if(e.target.closest(".mn-clear")){ delete mk.menuImgs[id]; renderMenuPhotoEditor(); return; }
+    if(e.target.closest(".mn-clear")){ mk.menuImgs[id] = ""; renderMenuPhotoEditor(); return; } // ""=外した印（自動で再割当しない）
     if(e.target.closest(".mn-btn")){ $(".mn-file", row).click(); }
   };
   box.onchange = async e=>{
@@ -4026,7 +4043,7 @@ function initMaker(){
     if(!mk.customColor){ mk.color = PRESETS[mk.ind].color; renderSwatches(); }
     if(!mk.toneTouched){ setTone(TONE_BY_IND[mk.ind] || "fine"); }
     renderCouponTemplates();
-    mk.menuImgs = {}; renderMenuPhotoEditor();
+    autoAssignMenuPhotos(true); // 新しい業態の品へ再配置
   });
   renderSwatches();
   $("#f-base").value = "";
@@ -4060,7 +4077,8 @@ function initMaker(){
     e.target.value = "";
   });
   $("#btn-photo-clear").addEventListener("click", ()=>{
-    mk.photos = []; mk.photosAlt = []; $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
+    mk.photos = []; mk.photosAlt = []; mk.menuImgs = {}; $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
+    renderMenuPhotoEditor();
   });
   renderPhotoStrip();
   renderMenuPhotoEditor();
@@ -4157,11 +4175,10 @@ function readForm(){
     return c;
   });
   if(!cpDefault || cpMatched){ if(allCp.length) cfg.cp = allCp; }
-  // メニュー写真：手動指定を最優先、なければ内容が一致した取得写真を自動配置
+  // メニュー写真：自動配置＋手動編集済みの mk.menuImgs をそのまま採用（""=外した品は含めない）
   const mi = {};
   PRESETS[mk.ind].cats.forEach(cat=>cat.items.forEach(it=>{
-    const ph = mk.menuImgs[it.id] || findPhotoFor(it.n);
-    if(ph) mi[it.id] = ph;
+    if(mk.menuImgs[it.id]) mi[it.id] = mk.menuImgs[it.id];
   }));
   if(Object.keys(mi).length) cfg.mi = mi;
   const nts = noticeRows(); if(nts.length) cfg.nt = nts;
