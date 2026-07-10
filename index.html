@@ -159,6 +159,59 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .info-gallery::-webkit-scrollbar{display:none}
 .info-gallery .ig-item{flex:0 0 132px;height:96px;border-radius:11px;background-size:cover;background-position:center;background-color:var(--brand-soft)}
 
+/* ================= 店舗情報（実機準拠） ================= */
+.st-hero{margin:6px 16px 0;height:190px;border-radius:14px;background-size:cover;background-position:center;background-color:var(--brand-soft);display:grid;place-items:center;font-size:48px;color:#fff}
+.st-desc{margin:14px 16px 0;background:#F1F1F0;border-radius:12px;padding:15px 16px;font-size:13.5px;line-height:1.75;color:#3A3B3E}
+.st-label{margin:22px 16px 6px;font-size:12px;color:var(--sub);font-weight:700;letter-spacing:.04em}
+.st-row{display:flex;align-items:center;gap:12px;margin:0 16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.st-row .st-ic{flex:0 0 22px;color:var(--sub);display:grid;place-items:center}
+.st-row .st-ic svg{width:20px;height:20px;stroke:var(--sub);fill:none;stroke-width:1.8}
+.st-row .st-link{color:var(--brand);font-weight:700;font-size:14px;text-decoration:underline;text-underline-offset:2px}
+.st-map{margin:12px 16px 0;height:150px;border-radius:12px;overflow:hidden;position:relative;
+  background:linear-gradient(135deg,#E9EEE6,#E4E9F0);border:1px solid var(--line)}
+.st-map .mp-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(150,160,170,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(150,160,170,.18) 1px,transparent 1px);background-size:34px 34px}
+.st-map .mp-road{position:absolute;background:#fff;opacity:.9}
+.st-map .mp-r1{left:-5%;right:-5%;top:44%;height:12px;transform:rotate(-6deg)}
+.st-map .mp-r2{top:-5%;bottom:-5%;left:56%;width:9px;transform:rotate(8deg)}
+.st-map .mp-pin{position:absolute;left:50%;top:46%;transform:translate(-50%,-100%);width:30px;height:30px;border-radius:50% 50% 50% 0;background:var(--brand);rotate:-45deg;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.st-map .mp-pin::after{content:"";position:absolute;inset:8px;background:#fff;border-radius:50%}
+.st-map .mp-open{position:absolute;right:8px;bottom:8px;background:rgba(23,24,26,.82);color:#fff;font-size:11px;font-weight:700;padding:6px 11px;border-radius:8px}
+.st-hours{margin:6px 16px 0;display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.st-hours .st-ic{flex:0 0 22px;color:var(--sub)}
+.st-hours table{border-collapse:collapse;font-size:13.5px}
+.st-hours td{padding:2.5px 0;vertical-align:top}
+.st-hours td.wd{width:52px;color:var(--sub)}
+.st-hours td.cl{color:var(--brand);font-weight:700}
+.st-sns{display:flex;gap:12px;margin:14px 16px 0}
+.st-sns button{width:44px;height:44px;border-radius:12px;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
+.st-sns button svg{width:20px;height:20px}
+/* calendar */
+.st-cal{margin:12px 16px 0;background:var(--card);border-radius:14px;padding:14px 12px}
+.st-cal .cal-h{display:flex;align-items:center;justify-content:center;gap:18px;font-weight:800;font-size:15px;margin-bottom:12px}
+.st-cal .cal-h span{color:var(--sub);font-size:18px}
+.st-cal table{width:100%;border-collapse:collapse;table-layout:fixed}
+.st-cal th{font-size:11px;color:var(--sub);font-weight:600;padding-bottom:8px}
+.st-cal th.sun{color:#D93025}.st-cal th.sat{color:#2563C9}
+.st-cal td{height:44px;vertical-align:top;text-align:center;font-size:12.5px;padding-top:5px;border-top:1px solid var(--line);position:relative}
+.st-cal td .cl{display:block;font-size:8.5px;color:var(--sub);background:#EDEDEC;border-radius:4px;margin:3px 3px 0;padding:1px 0}
+.st-cal td.out{color:#C7C7C9}
+.st-cal td.today .dn{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700}
+.st-others{margin:6px 0 0}
+
+/* ================= お知らせ詳細 ================= */
+.nd-date{font-size:12px;color:var(--sub);margin:4px 16px 0}
+.nd-title{font-size:20px;font-weight:800;line-height:1.4;margin:6px 16px 0}
+.nd-store{display:flex;align-items:center;gap:10px;margin:14px 16px 16px}
+.nd-store .nd-av{width:38px;height:38px;border-radius:9px;overflow:hidden;background:var(--brand-soft);display:grid;place-items:center;font-size:16px;flex:0 0 38px}
+.nd-store .nd-av img{width:100%;height:100%;object-fit:cover}
+.nd-store b{font-size:14px;display:block}
+.nd-store small{font-size:11.5px;color:var(--sub)}
+.nd-hero{margin:0 16px;border-radius:12px;overflow:hidden;background:var(--brand-soft)}
+.nd-hero img{width:100%;display:block}
+.nd-body{margin:16px 16px 0;font-size:14px;line-height:1.85;white-space:pre-wrap}
+.nd-cta{position:sticky;bottom:0;margin-top:24px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:var(--card);box-shadow:0 -6px 18px rgba(0,0,0,.07)}
+.nd-cta button{width:100%;padding:15px;border-radius:12px;background:var(--brand);color:var(--brand-ink);font-weight:800;font-size:15px}
+
 /* ================= DEMO: premium coupon design ================= */
 .cp-card{border:1px solid transparent}
 .cp-img{overflow:hidden}
@@ -561,12 +614,11 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .nt-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .nt-thumb .nt-ph{font-size:30px}
 .nt-main{flex:1;min-width:0}
-.nt-card .nt-store{font-size:10.5px;color:var(--sub);font-weight:600;display:block}
-.nt-card b{display:block;font-size:14px;margin-top:3px;line-height:1.5}
-.nt-card .nt-d{font-size:11px;color:var(--sub);margin-top:5px;display:flex;align-items:center;gap:7px}
+.nt-card .nt-store{font-size:10px;color:var(--sub);font-weight:600;background:#EEEEEC;border-radius:5px;padding:2px 8px;display:inline-block}
+.nt-card b{display:block;font-size:14px;margin-top:5px;line-height:1.5}
+.nt-card .nt-d{font-size:11px;color:var(--sub);margin-top:6px;display:flex;align-items:center;gap:7px}
 .nt-card .nt-new{font-size:10px;font-weight:800;color:#fff;background:var(--tp);padding:2px 7px;border-radius:5px}
-.nt-card p{font-size:12.5px;color:var(--sub);line-height:1.75;margin-top:8px;display:none}
-.nt-card.open p{display:block}
+.nt-card p{font-size:12.5px;color:var(--sub);line-height:1.7;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .info-hero{display:flex;flex-direction:column;align-items:center;padding:26px 16px 6px;text-align:center}
 .info-hero .big-logo{width:76px;height:76px;border-radius:20px;background:var(--card);display:grid;place-items:center;font-size:34px;font-weight:800;color:var(--brand);box-shadow:0 2px 10px rgba(0,0,0,.08)}
 .info-hero h3{font-size:18px;margin-top:12px}
@@ -4751,14 +4803,23 @@ function openPicker(){
 
 /* ---------- news / info ---------- */
 const NT_DATES = ["今日","2日前","5日前","1週間前","2週間前","先月"];
+function noticeList(){
+  const {cfg, P} = D;
+  const base = (cfg.nt && cfg.nt.length) ? cfg.nt.map((n,i)=>({...n, nw:i===0})) : P.notices.map((n,i)=>({...n, nw:i===0}));
+  return base.concat([{t:"アプリ会員だけの限定クーポンを配信中", d:"友だち紹介キャンペーンや、雨の日限定クーポンなど、会員様だけのお得な情報をお届けしています。通知をオンにして見逃さないようにしましょう。", nw:false, filler:true}]);
+}
+function noticeDateTime(i){
+  const now = new Date();
+  const dt = new Date(now.getTime() - (i*4+1)*86400000 + 3600000);
+  const mm = ["16","33","08","24","41","57"];
+  return `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,"0")}/${String(dt.getDate()).padStart(2,"0")} ${String(9+i).padStart(2,"0")}:${mm[i%mm.length]}`;
+}
 function newsHtml(){
   const {cfg, P} = D;
-  const notices = (cfg.nt && cfg.nt.length)
-    ? cfg.nt.map((n,i)=>({...n, nw:i===0}))
-    : P.notices;
+  const notices = noticeList();
   const phs = demoPhotos(cfg);
   const thumb = (n,i)=> n.img ? `<img src="${esc(n.img)}" alt="">`
-    : (phs.length ? `<img src="${esc(phs[i%phs.length])}" alt="" onerror="this.parentNode.textContent='${P.e}'">` : `<span class="nt-ph">${P.e}</span>`);
+    : (phs.length ? `<img src="${esc(phs[i%phs.length])}" alt="" onerror="this.parentNode.textContent='${n.filler?"🎁":P.e}'">` : `<span class="nt-ph">${n.filler?"🎁":P.e}</span>`);
   return `
   <header class="app-head">
     ${miniLogo(cfg)}
@@ -4770,46 +4831,122 @@ function newsHtml(){
       <span class="nt-main">
         <span class="nt-store">${esc(cfg.n)}</span>
         <b>${esc(n.t)}</b>
-        <span class="nt-d">${NT_DATES[i]||"先月"}${n.nw?'<span class="nt-new">NEW</span>':""}</span>
         <p>${esc(n.d)}</p>
+        <span class="nt-d">${noticeDateTime(i)}${n.nw?'<span class="nt-new">NEW</span>':""}</span>
       </span>
     </button>`).join("")}
-  <button class="nt-card" data-nt="x">
-    <span class="nt-thumb">${phs.length?`<img src="${esc(phs[notices.length%phs.length])}" alt="">`:'<span class="nt-ph">🎁</span>'}</span>
-    <span class="nt-main">
-      <span class="nt-store">${esc(cfg.n)}</span>
-      <b>アプリ会員だけの限定クーポンを配信中</b>
-      <span class="nt-d">${NT_DATES[notices.length]||"先月"}</span>
-      <p>友だち紹介キャンペーンや、雨の日限定クーポンなど、会員様だけのお得な情報をお届けしています。通知をオンにして見逃さないようにしましょう。</p>
-    </span>
-  </button>
   <p class="app-foot">Powered by <b>toypo</b></p>
   `;
 }
+function openNotice(i){
+  const {cfg, P} = D;
+  const list = noticeList();
+  const n = list[i]; if(!n) return;
+  const phs = demoPhotos(cfg);
+  const hero = n.img || (phs.length ? phs[i%phs.length] : "");
+  const body = `みなさま\nいつも「${cfg.n}」をご利用いただき、誠にありがとうございます。\n\n${n.d}\n\nこの機会にぜひご利用ください。皆さまのご来店を、スタッフ一同 心よりお待ちしております。`;
+  $("#subscreen").innerHTML = `
+    <div class="sub-head"><button class="sb-back" aria-label="戻る">‹</button><span class="sb-ttl">お知らせ</span></div>
+    <p class="nd-date">${noticeDateTime(i)}</p>
+    <h2 class="nd-title">${esc(n.t)}</h2>
+    <div class="nd-store">
+      <span class="nd-av">${hero?`<img src="${esc(hero)}" alt="">`:P.e}</span>
+      <div><b>${esc(cfg.n)}</b><small>最新情報を見る ›</small></div>
+    </div>
+    ${hero?`<div class="nd-hero"><img src="${esc(hero)}" alt=""></div>`:""}
+    <div class="nd-body">${esc(body)}</div>
+    <div class="nd-cta"><button data-reserve>ご予約はこちら</button></div>`;
+  const ss = $("#subscreen");
+  ss.querySelector(".sb-back").onclick = closeMember;
+  ss.onclick = e=>{ if(e.target.closest("[data-reserve]")) toast("デモのため、予約画面は省略しています"); };
+  ss.hidden = false; ss.scrollTop = 0;
+}
+function storeCalendar(){
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m+1, 0).getDate();
+  const prevDays = new Date(y, m, 0).getDate();
+  const wd = ["日","月","火","水","木","金","土"];
+  let cells = [];
+  for(let i=0;i<first;i++) cells.push({d:prevDays-first+1+i, out:true});
+  for(let d=1;d<=days;d++) cells.push({d, out:false, today:d===now.getDate(), sun:(first+d-1)%7===0});
+  while(cells.length%7!==0) cells.push({d:cells.length-(first+days)+1, out:true});
+  let rows = "";
+  for(let i=0;i<cells.length;i+=7){
+    rows += "<tr>" + cells.slice(i,i+7).map(c=>
+      `<td class="${c.out?"out":""}${c.today?" today":""}"><span class="dn">${c.d}</span>${(!c.out && c.sun)?'<span class="cl">定休日</span>':""}</td>`
+    ).join("") + "</tr>";
+  }
+  return `
+  <div class="st-cal">
+    <div class="cal-h"><span>‹</span>${y}年${String(m+1).padStart(2,"0")}月<span>›</span></div>
+    <table><thead><tr>${wd.map((w,i)=>`<th class="${i===0?"sun":i===6?"sat":""}">${w}</th>`).join("")}</tr></thead>
+    <tbody>${rows}</tbody></table>
+  </div>`;
+}
 function infoHtml(){
   const {cfg, P} = D;
+  const phs = demoPhotos(cfg);
+  const hero = phs[0] || cfg.ph || "";
+  const desc = `「${cfg.n}」は${P.info}のお店です。落ち着いた空間で、スタッフ一同、心のこもったおもてなしでお客様をお迎えします。ぜひごゆっくりお楽しみください。`;
+  const stores = siblingStores(cfg, P);
   return `
   <header class="app-head">
     ${miniLogo(cfg)}
     <span class="ttl">店舗情報</span>
   </header>
-  <div class="info-hero${cfg.ph?" has-photo":""}"${cfg.ph?` style="background-image:url('${esc(cfg.ph)}')"`:""}>
-    ${bigLogo(cfg)}
-    <h3>${esc(cfg.n)}</h3>
-    <p>${esc(P.info)}</p>
+  <div class="st-hero"${hero?` style="background-image:url('${esc(hero)}')"`:""}>${hero?"":P.e}</div>
+  <div class="st-desc">${esc(desc)}</div>
+
+  ${phs.length>1 ? `
+  <p class="st-label">写真</p>
+  <div class="info-gallery">${phs.map(u=>`<div class="ig-item" style="background-image:url('${esc(u)}')"></div>`).join("")}</div>` : ""}
+
+  <p class="st-label">基本情報</p>
+  <div class="st-row">
+    <span class="st-ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+    <a class="st-link" data-map>東京都渋谷区（サンプル）</a>
   </div>
-  ${(()=>{ const phs = demoPhotos(cfg); return phs.length>1 ? `
-  <div class="sec" style="margin-top:16px"><div class="sec-h"><h2>写真</h2><span class="more">すべて見る</span></div></div>
-  <div class="info-gallery">${phs.map(u=>`<div class="ig-item" style="background-image:url('${esc(u)}')"></div>`).join("")}</div>` : ""; })()}
-  <div class="info-table">
-    <div class="info-tr"><span class="k">営業時間</span><span class="v">11:30〜15:00 / 17:00〜23:00<br>（L.O. 22:30）</span></div>
-    <div class="info-tr"><span class="k">定休日</span><span class="v">不定休</span></div>
-    <div class="info-tr"><span class="k">住所</span><span class="v">東京都渋谷区◯◯ 1-2-3 サンプルビル1F</span></div>
-    <div class="info-tr"><span class="k">電話</span><span class="v">03-1234-5678</span></div>
-    <div class="info-tr"><span class="k">支払い</span><span class="v">現金・各種カード・QR決済</span></div>
+  <div class="st-map" data-map>
+    <div class="mp-grid"></div><div class="mp-road mp-r1"></div><div class="mp-road mp-r2"></div>
+    <div class="mp-pin"></div><div class="mp-open">地図アプリで見る</div>
   </div>
-  <p class="demo-note" style="margin-top:16px">この店舗情報はサンプルです。実際の導入時には、貴社の店舗情報・写真・地図をそのまま掲載できます。</p>
-  <p class="app-foot">Powered by toypo（デモ画面）</p>
+  <div class="st-row">
+    <span class="st-ic"><svg viewBox="0 0 24 24"><path d="M4 5c0 8 7 15 15 15l0-3.5-4-1.5-2 2a12 12 0 0 1-6-6l2-2L11.5 5 8 5a3 3 0 0 0-3 0Z"/></svg></span>
+    <a class="st-link" data-tel>03-1234-5678</a>
+  </div>
+  <div class="st-hours">
+    <span class="st-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+    <table>
+      <tr><td class="wd">日曜</td><td class="cl">定休日</td></tr>
+      <tr><td class="wd">月〜金</td><td>11:00 〜 22:00</td></tr>
+      <tr><td class="wd">土曜</td><td>11:00 〜 23:00</td></tr>
+    </table>
+  </div>
+
+  <p class="st-label">SNS</p>
+  <div class="st-sns">
+    <button data-sns aria-label="Web"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></button>
+    <button data-sns aria-label="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3h3l-6.5 7.5L21 21h-5.5l-4-5.3L6.7 21H3.7l7-8L3 3h5.6l3.6 4.9L17 3Z"/></svg></button>
+    <button data-sns aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="1.2" fill="currentColor" stroke="none"/></svg></button>
+    <button data-sns aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7h2.3l.4-2.8h-2.7V9.4c0-.8.2-1.4 1.4-1.4h1.4V5.5c-.7-.1-1.5-.2-2.3-.2-2.3 0-3.9 1.4-3.9 4v2.1H7.8V14h2.4v7h3.3Z"/></svg></button>
+  </div>
+
+  <p class="st-label">カレンダー</p>
+  ${storeCalendar()}
+
+  <p class="st-label">ほかの店舗</p>
+  <div class="st-others mc-stores" style="margin:6px 16px 0">
+    ${stores.slice(1).map(s=>`
+      <div class="mc-store">
+        <span class="st-img">${s.img?`<img src="${esc(s.img)}" alt="">`:P.e}</span>
+        <span class="st-b"><b>${esc(s.n)}</b><small>${esc(s.area)}</small></span>
+        <span class="st-tag">${esc(s.tag)}</span>
+      </div>`).join("")}
+  </div>
+  <p class="demo-note" style="margin-top:16px">住所・電話・営業時間・地図はサンプルです。導入時に貴社の情報へ差し替えできます。</p>
+  <p class="app-foot">Powered by <b>toypo</b></p>
   `;
 }
 function bindTab(sc){
@@ -4818,7 +4955,14 @@ function bindTab(sc){
   else if(D.tab === "news"){
     sc.onclick = e=>{
       const n = e.target.closest(".nt-card");
-      if(n) n.classList.toggle("open");
+      if(n) openNotice(+n.dataset.nt);
+    };
+  }else if(D.tab === "info"){
+    sc.onclick = e=>{
+      if(e.target.closest("[data-map]")){ toast("外部のマップアプリを開きます（デモ）"); return; }
+      if(e.target.closest("[data-tel]")){ toast("デモのため、発信は行いません"); return; }
+      if(e.target.closest("[data-sns]")){ toast("公式SNSへのリンクを設定できます"); return; }
+      if(e.target.closest(".cal-h")){ toast("月の切り替えは実機で動作します"); return; }
     };
   }else{
     sc.onclick = null;
