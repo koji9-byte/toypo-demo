@@ -3767,11 +3767,11 @@ function extractMenuFromText(txt){
     .replace(/\s{2,}/g," ").trim();
   const bad = s => !s || s.length<2 || s.length>34 ||
     /予算|営業時間|クーポン|ポイント|飲み放題付|住所|アクセス|定休日|口コミ|レビュー|ランキング|検索|一覧|ページ|地図|予約|貸切|席|喫煙|カード|求人|お問い合わせ|コピーライト|copyright/i.test(s);
-  let lastImg = "", lastImgLine = -99;
+  let lastImg = "", lastImgAlt = "", lastImgLine = -99;
   for(let i=0;i<lines.length;i++){
     const ln = lines[i];
     let m; IMG_RE.lastIndex = 0;
-    while((m = IMG_RE.exec(ln))){ if(looksLikePhoto(m[2])){ lastImg = m[2]; lastImgLine = i; } }
+    while((m = IMG_RE.exec(ln))){ if(looksLikePhoto(m[2])){ lastImg = m[2]; lastImgAlt = String(m[1]||"").replace(/^Image \d+:?\s*/i,"").trim(); lastImgLine = i; } }
     let name = "", price = 0;
     const h = ln.match(/####\s*(.+)$/);          // パターンA
     if(h){
@@ -3789,7 +3789,17 @@ function extractMenuFromText(txt){
       }
     }
     if(!name || bad(name) || seen.has(name)) continue;
-    const g = (i - lastImgLine <= 2) ? lastImg : "";
+    // 隣接画像は「品と本当に対応している」と判断できる時だけ採用:
+    //  altが品名と語を共有(4行以内) / 説明的なalt(2行以内) / alt無しは同一行のみ
+    let g = "";
+    if(lastImg){
+      const dist = i - lastImgLine;
+      const toks = contentTokens(name);
+      const tokenMatch = lastImgAlt && toks.some(t=>lastImgAlt.includes(t));
+      if((dist <= 4 && tokenMatch) ||
+         (dist <= 2 && lastImgAlt.length >= 10) ||
+         (dist === 0 && !lastImgAlt)) g = lastImg;
+    }
     seen.add(name);
     items.push({n:name.slice(0,30), p:price||0, g});
     if(items.length >= 14) break;
@@ -3956,15 +3966,13 @@ function defaultTemplateIds(ind){ return industryTemplates(ind).filter(t=>t.on).
 function autoAssignMenuPhotos(force){
   if(force) mk.menuImgs = {};
   const items = makerMenuItems();
-  if(mk.photos.length || items.some(it=>it.g)){
-    let pi = 0;
-    items.forEach(it=>{
-      if(mk.menuImgs[it.id] !== undefined) return;
-      // 優先順位: ページで品に隣接していた画像 > 内容一致 > 残り写真を順番に
-      const ph = it.g || findPhotoFor(it.n) || (mk.photos.length ? mk.photos[pi++ % mk.photos.length] : "");
-      if(ph) mk.menuImgs[it.id] = ph;
-    });
-  }
+  items.forEach(it=>{
+    if(mk.menuImgs[it.id] !== undefined) return;
+    // 確実にペアリングできた写真だけ自動で入れる（ページで品に隣接していた画像 > 内容一致）。
+    // 無関係な写真の使い回しは不一致・重複だらけに見えるためやらない
+    const ph = it.g || findPhotoFor(it.n);
+    if(ph) mk.menuImgs[it.id] = ph;
+  });
   renderMenuPhotoEditor();
 }
 
