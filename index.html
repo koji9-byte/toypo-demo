@@ -3615,8 +3615,22 @@ window.addEventListener("hashchange", route);
    MAKER
 ================================================================ */
 const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false,
-  tone:"fine", photo:"", photos:[], photosAlt:[], menuImgs:{} };
+  tone:"fine", photo:"", photos:[], photosAlt:[], menuImgs:{}, customMenu:null };
 const MAX_PHOTOS = 5;
+
+/* URLから取得した実メニュー（customMenu）があればそれを、なければ業態プリセットを使う */
+function makerMenuItems(){
+  if(mk.customMenu && mk.customMenu.length)
+    return mk.customMenu.map((m,i)=>({id:"m"+i, n:m.n, e:PRESETS[mk.ind].e, g:m.g||""}));
+  const out = [];
+  PRESETS[mk.ind].cats.forEach(c=>c.items.forEach(it=>out.push(it)));
+  return out;
+}
+function makerMenuGroups(){
+  if(mk.customMenu && mk.customMenu.length)
+    return [{label:"取得したメニュー（"+mk.customMenu.length+"品）", items: makerMenuItems()}];
+  return PRESETS[mk.ind].cats.map(c=>({label:c.label, items:c.items}));
+}
 
 /* default tone per industry (単価高め=高級寄り) */
 const TONE_BY_IND = { yakiniku:"lux", izakaya:"fine", cafe:"fine", ramen:"pop",
@@ -3681,6 +3695,7 @@ function checkTemplate(id){
 function cleanTitle(t){
   let s = (t||"").split(/[|｜\-–—:：]/)[0].trim();
   s = s.replace(/\s*(の(公式|ご予約|予約|メニュー|アクセス|クーポン|地図).*|公式(サイト|ホームページ|ＨＰ|HP).*|【.*?】)/g, "").trim();
+  s = s.replace(/[（(][^）)]{1,8}[）)]\s*$/,"").trim(); // 末尾の「(居酒屋)」等のジャンル表記を除去
   return s;
 }
 function looksLikePhoto(u){
@@ -3692,9 +3707,17 @@ function looksLikePhoto(u){
   if(/(\/img\/|\/images?\/|\/photo|\/upload|cloudfront|cloudinary|\.cdn|imgix|\.image|sku_images)/.test(s)) return true;
   return false;
 }
-// ページを読み取りサービス経由で取得し、写真URL＋説明文(alt)を抽出（best-effort・サーバー不要）
+// ページ全文をJSレンダリング対応のリーダー経由で1回だけ取得し、写真抽出とメニュー抽出で共用する
+async function fetchReaderText(url){
+  try{
+    const res = await fetch("https://r.jina.ai/" + url);
+    if(res.ok) return await res.text();
+  }catch(e){}
+  return "";
+}
+// 写真URL＋説明文(alt)を抽出（best-effort・サーバー不要）
 // alt はメニュー・クーポンへの「内容が一致した時だけ」の自動配置に使う
-async function fetchPageImages(url, primary){
+async function fetchPageImages(url, primary, readerText){
   const out = [], seen = new Set();
   const add = (u, alt) => {
     if(!u || out.length>=MAX_PHOTOS || seen.has(u) || !/^https?:/.test(u) || !looksLikePhoto(u)) return;
@@ -3702,17 +3725,14 @@ async function fetchPageImages(url, primary){
     out.push({url:u, alt:String(alt||"").replace(/^Image \d+:?\s*/i,"").trim()});
   };
   if(primary) add(primary, "");
-  // 1) Jina Reader: JSレンダリング対応でSPAサイトにも強い。markdownの ![alt](url) からaltも取る
-  try{
-    const res = await fetch("https://r.jina.ai/" + url);
-    if(res.ok){
-      const txt = await res.text();
-      const reMd = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/gi;
-      let m; while((m = reMd.exec(txt)) && out.length < MAX_PHOTOS){ add(m[2], m[1]); }
-      const reBare = /https?:\/\/[^\s)"'<>\]]+?\.(?:jpe?g|png|webp)(?:\?[^\s)"'<>\]]*)?/gi;
-      while((m = reBare.exec(txt)) && out.length < MAX_PHOTOS){ add(m[0], ""); }
-    }
-  }catch(e){}
+  // 1) Jina Reader のmarkdownから ![alt](url) を抽出
+  const txt = readerText || "";
+  if(txt){
+    const reMd = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/gi;
+    let m; while((m = reMd.exec(txt)) && out.length < MAX_PHOTOS){ add(m[2], m[1]); }
+    const reBare = /https?:\/\/[^\s)"'<>\]]+?\.(?:jpe?g|png|webp)(?:\?[^\s)"'<>\]]*)?/gi;
+    while((m = reBare.exec(txt)) && out.length < MAX_PHOTOS){ add(m[0], ""); }
+  }
   // 2) fallback: allorigins raw HTML（img の alt 属性も取る）
   if(out.length < 2){
     try{
@@ -3728,6 +3748,53 @@ async function fetchPageImages(url, primary){
     }catch(e){}
   }
   return out.slice(0, MAX_PHOTOS);
+}
+
+/* ---- メニュー抽出（リーダーテキストから品名・価格・隣接画像を取る） ----
+   パターンA: ホットペッパー等の「#### 品名」＋近くの画像・価格
+   パターンB: 一般HPの「品名 …… 1,200円」形式 */
+function extractMenuFromText(txt){
+  const items = [], seen = new Set();
+  if(!txt) return items;
+  const lines = txt.split(/\n/);
+  const IMG_RE = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/g;
+  const PRICE_RE = /(?:[¥￥]\s?([\d,]{3,6}))|(?:([\d,]{3,6})\s*円)/;
+  const clean = s => String(s||"")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g,"")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g,"$1")
+    .replace(/[#*_`>|]/g,"")
+    .replace(/（税込.?）|\(税込.?\)|税込|税抜|〜|~/g,"")
+    .replace(/\s{2,}/g," ").trim();
+  const bad = s => !s || s.length<2 || s.length>34 ||
+    /予算|営業時間|クーポン|ポイント|飲み放題付|住所|アクセス|定休日|口コミ|レビュー|ランキング|検索|一覧|ページ|地図|予約|貸切|席|喫煙|カード|求人|お問い合わせ|コピーライト|copyright/i.test(s);
+  let lastImg = "", lastImgLine = -99;
+  for(let i=0;i<lines.length;i++){
+    const ln = lines[i];
+    let m; IMG_RE.lastIndex = 0;
+    while((m = IMG_RE.exec(ln))){ if(looksLikePhoto(m[2])){ lastImg = m[2]; lastImgLine = i; } }
+    let name = "", price = 0;
+    const h = ln.match(/####\s*(.+)$/);          // パターンA
+    if(h){
+      name = clean(h[1]);
+      for(let j=i; j<Math.min(i+4, lines.length); j++){
+        const pm = lines[j].match(PRICE_RE);
+        if(pm){ price = parseInt((pm[1]||pm[2]).replace(/,/g,""),10); break; }
+      }
+    }else{                                        // パターンB
+      const pm = ln.match(PRICE_RE);
+      if(pm){
+        price = parseInt((pm[1]||pm[2]).replace(/,/g,""),10);
+        name = clean(ln.replace(PRICE_RE,"")).replace(/[・…‥.]{2,}/g," ").trim();
+        if(!price || price<50 || price>100000) continue;
+      }
+    }
+    if(!name || bad(name) || seen.has(name)) continue;
+    const g = (i - lastImgLine <= 2) ? lastImg : "";
+    seen.add(name);
+    items.push({n:name.slice(0,30), p:price||0, g});
+    if(items.length >= 14) break;
+  }
+  return items;
 }
 
 /* ---- 写真の内容マッチング（altとファイル名に品名の語が含まれる時だけ割当） ---- */
@@ -3763,14 +3830,23 @@ async function autofillFromUrl(){
     const name = cleanTitle(d.title);
     if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
     const primary = (d.image && d.image.url) ? d.image.url : "";
-    const imgs = await fetchPageImages(url, primary);
+    const readerText = await fetchReaderText(url);
+    const imgs = await fetchPageImages(url, primary, readerText);
     if(imgs.length){
       mk.photos = imgs.map(x=>x.url);
       mk.photosAlt = imgs.map(x=>x.alt);
       syncPrimary(); renderPhotoStrip(); $("#f-photo").value = "";
-      autoAssignMenuPhotos(true); // メニュー全品に自動配置（内容一致優先→残りは順番）
-      got.push(imgs.length+"枚の写真（メニューにも自動配置）");
+      got.push(imgs.length+"枚の写真");
     }
+    // 実メニューの自動生成（3品以上取れた時だけ差し替え）
+    const menu = extractMenuFromText(readerText);
+    if(menu.length >= 3){
+      mk.customMenu = menu;
+      got.push("実メニュー"+menu.length+"品");
+    }else{
+      mk.customMenu = null;
+    }
+    autoAssignMenuPhotos(true); // メニュー全品に写真を自動配置（品に隣接した画像＞内容一致＞順番）
     const g = guessIndustry([d.title, d.description, url].join(" "));
     if(g){
       applyIndustry(g);
@@ -3879,12 +3955,15 @@ function defaultTemplateIds(ind){ return industryTemplates(ind).filter(t=>t.on).
    mk.menuImgs[id] が既にある品（手動指定）や ""（ユーザーが×で外した品）には触らない */
 function autoAssignMenuPhotos(force){
   if(force) mk.menuImgs = {};
-  if(mk.photos.length){
+  const items = makerMenuItems();
+  if(mk.photos.length || items.some(it=>it.g)){
     let pi = 0;
-    PRESETS[mk.ind].cats.forEach(cat=>cat.items.forEach(it=>{
+    items.forEach(it=>{
       if(mk.menuImgs[it.id] !== undefined) return;
-      mk.menuImgs[it.id] = findPhotoFor(it.n) || mk.photos[pi++ % mk.photos.length];
-    }));
+      // 優先順位: ページで品に隣接していた画像 > 内容一致 > 残り写真を順番に
+      const ph = it.g || findPhotoFor(it.n) || (mk.photos.length ? mk.photos[pi++ % mk.photos.length] : "");
+      if(ph) mk.menuImgs[it.id] = ph;
+    });
   }
   renderMenuPhotoEditor();
 }
@@ -3893,8 +3972,7 @@ function autoAssignMenuPhotos(force){
 function renderMenuPhotoEditor(){
   const box = $("#ed-menu");
   if(!box) return;
-  const P = PRESETS[mk.ind];
-  box.innerHTML = P.cats.map(cat=>
+  box.innerHTML = makerMenuGroups().map(cat=>
     `<div class="mn-cat">${esc(cat.label)}</div>` +
     cat.items.map(it=>{
       const ph = mk.menuImgs[it.id] || "";
@@ -4098,7 +4176,7 @@ function initMaker(){
   $("#btn-new").addEventListener("click", ()=>{
     $("#f-name").value = ""; $("#f-banner").value = ""; $("#f-photo").value = "";
     $("#f-url").value = ""; $("#url-hint").textContent = "※ Instagramや一部サイトは取得できません。取得後は内容をご確認ください。";
-    mk.photos = []; mk.photosAlt = []; mk.menuImgs = {}; syncPrimary(); renderPhotoStrip();
+    mk.photos = []; mk.photosAlt = []; mk.menuImgs = {}; mk.customMenu = null; syncPrimary(); renderPhotoStrip();
     $("#ed-banners").innerHTML = ""; $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
     renderCouponTemplates();
     renderMenuPhotoEditor();
@@ -4175,12 +4253,22 @@ function readForm(){
     return c;
   });
   if(!cpDefault || cpMatched){ if(allCp.length) cfg.cp = allCp; }
-  // メニュー写真：自動配置＋手動編集済みの mk.menuImgs をそのまま採用（""=外した品は含めない）
-  const mi = {};
-  PRESETS[mk.ind].cats.forEach(cat=>cat.items.forEach(it=>{
-    if(mk.menuImgs[it.id]) mi[it.id] = mk.menuImgs[it.id];
-  }));
-  if(Object.keys(mi).length) cfg.mi = mi;
+  // メニュー：URLから取得した実メニューがあれば差し替え（写真は編集結果を反映）
+  if(mk.customMenu && mk.customMenu.length){
+    cfg.mn = mk.customMenu.map((m,i)=>{
+      const o = {n:m.n, p:m.p||0};
+      const g = mk.menuImgs["m"+i];
+      if(g) o.g = g;
+      return o;
+    });
+  }else{
+    // プリセットメニューの写真：自動配置＋手動編集済みの mk.menuImgs を採用（""=外した品は含めない）
+    const mi = {};
+    PRESETS[mk.ind].cats.forEach(cat=>cat.items.forEach(it=>{
+      if(mk.menuImgs[it.id]) mi[it.id] = mk.menuImgs[it.id];
+    }));
+    if(Object.keys(mi).length) cfg.mi = mi;
+  }
   const nts = noticeRows(); if(nts.length) cfg.nt = nts;
   return cfg;
 }
@@ -4261,7 +4349,9 @@ function renderHistory(){
     // restore photos / tone / editors
     mk.photos = (x.phs && x.phs.length) ? x.phs.slice() : (x.ph ? [x.ph] : []);
     mk.photosAlt = mk.photos.map(()=>"");
+    mk.customMenu = (x.mn && x.mn.length) ? x.mn.map(m=>({n:m.n, p:m.p||0, g:m.g||""})) : null;
     mk.menuImgs = x.mi ? {...x.mi} : {};
+    if(mk.customMenu) mk.customMenu.forEach((m,i)=>{ if(m.g) mk.menuImgs["m"+i] = m.g; });
     $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
     renderMenuPhotoEditor();
     mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
@@ -4304,7 +4394,7 @@ function startDemo(cfg){
     memberNo: "TOYPO" + String(10000000 + (h % 90000000)),
     usedCoupons: {}, bonusCoupons: [],
     surveyDone: false,
-    cart: {}, seg:"takeout", cat: P.cats[0].k,
+    cart: {}, seg:"takeout", cats: catsFor(cfg, P), cat: catsFor(cfg, P)[0].k,
     cartView: false, orderDone: null,
     pickDate: 0, pickSlot: -1,
     orders: []
@@ -4342,6 +4432,16 @@ function logoChar(name){ return esc(name.trim().charAt(0) || "T"); }
 function miniLogo(cfg){ return `<span class="mini-logo">${logoChar(cfg.n)}</span>`; }
 function bigLogo(cfg){ return `<span class="big-logo">${logoChar(cfg.n)}</span>`; }
 function demoPhotos(cfg){ return (cfg.phs && cfg.phs.length) ? cfg.phs : (cfg.ph ? [cfg.ph] : []); }
+/* URL取得の実メニュー(cfg.mn)があればカテゴリを組み立て、なければ業態プリセット */
+function catsFor(cfg, P){
+  if(cfg.mn && cfg.mn.length){
+    const items = cfg.mn.map((m,i)=>({id:"m"+i, e:P.e, n:m.n, p:m.p||0, d:"", img:m.g||""}));
+    const cats = [{k:"reco", label:"オススメ", items: items.slice(0,6)}];
+    if(items.length > 6) cats.push({k:"all", label:"グランドメニュー", items: items.slice(6)});
+    return cats;
+  }
+  return P.cats;
+}
 
 const NAV = [
   {k:"home", label:"ホーム", ic:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>'},
@@ -4830,12 +4930,12 @@ function cartTotal(){
   }
   return t;
 }
-function allItems(){ return D.P.cats.flatMap(c=>c.items); }
+function allItems(){ return D.cats.flatMap(c=>c.items); }
 
 function menuHtml(){
   const {cfg, P} = D;
   if(D.seg === "history") return historyHtml();
-  const cat = P.cats.find(c=>c.k===D.cat) || P.cats[0];
+  const cat = D.cats.find(c=>c.k===D.cat) || D.cats[0];
   return `
   <header class="app-head" style="justify-content:center">
     <span class="ttl" style="flex:0 1 auto;text-align:center">${esc(cfg.n)}</span>
@@ -4844,7 +4944,7 @@ function menuHtml(){
     ${SEGS.map(s=>`<button class="seg${D.seg===s.k?" on":""}" data-seg="${s.k}">${s.label}</button>`).join("")}
   </div>
   <div class="cat-row">
-    ${P.cats.map(c=>`<button class="cat${cat.k===c.k?" on":""}" data-cat="${c.k}">${c.label}</button>`).join("")}
+    ${D.cats.map(c=>`<button class="cat${cat.k===c.k?" on":""}" data-cat="${c.k}">${c.label}</button>`).join("")}
   </div>
   <p class="demo-note">※ デモ画面のため、実際の注文・決済は行われません。<br>カートに入れて注文フローをお試しいただけます。</p>
   ${cat.items.map((it,idx)=>{
@@ -4857,7 +4957,7 @@ function menuHtml(){
       <span class="mi-body">
         <b>${esc(it.n)}</b>
         ${it.d ? `<span class="d">${esc(it.d)}</span>` : ""}
-        <span class="mi-price">${it.op?`<s>${yen(it.op)}</s>`:""}${yen(it.p)}</span>
+        <span class="mi-price">${it.op?`<s>${yen(it.op)}</s>`:""}${it.p ? yen(it.p) : "－"}</span>
         ${it.off?`<span class="mi-off">📣 ${esc(it.off)}</span>`:""}
       </span>
     </button>`;}).join("")}
