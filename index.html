@@ -135,6 +135,19 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .tone-btn .te{font-size:18px;display:block;margin-bottom:2px}
 .tone-btn.on{border-color:var(--tp);background:color-mix(in srgb,var(--tp) 8%, var(--mk-card))}
 
+/* ---- coupon template checkboxes ---- */
+.tmpl-cat{font-size:11px;font-weight:700;color:var(--mk-sub);letter-spacing:.03em;margin:14px 0 6px}
+.tmpl-cat:first-child{margin-top:2px}
+.tmpl-list{display:flex;flex-direction:column;gap:8px}
+.tmpl-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border:1.5px solid var(--mk-line);border-radius:11px;background:var(--mk-bg);cursor:pointer}
+.tmpl-item.on{border-color:var(--tp);background:color-mix(in srgb,var(--tp) 7%,var(--mk-card))}
+.tmpl-item .tm-check{flex:0 0 20px;width:20px;height:20px;border-radius:6px;border:1.5px solid var(--mk-line);display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;background:var(--mk-card)}
+.tmpl-item.on .tm-check{background:var(--tp);border-color:var(--tp)}
+.tmpl-item .tm-e{font-size:19px;flex:0 0 auto}
+.tmpl-item .tm-b{flex:1;min-width:0}
+.tmpl-item .tm-b b{font-size:13.5px;font-weight:700;display:block;line-height:1.35}
+.tmpl-item .tm-b small{font-size:11px;color:var(--mk-sub)}
+
 /* ---- coupon / notice editors ---- */
 .ed-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
 .ed-item{border:1px solid var(--mk-line);border-radius:12px;padding:11px 11px 12px;position:relative;background:var(--mk-bg)}
@@ -740,12 +753,17 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
       </div>
     </div>
 
+    <div class="mk-field">
+      <span class="mk-label">クーポン<small>チェックで選ぶだけ・使うものをON</small></span>
+      <div class="tmpl-list" id="cp-templates"></div>
+    </div>
+
     <details class="mk-adv" id="mk-editors">
-      <summary>バナー・クーポン・お知らせを編集する（任意）</summary>
+      <summary>バナー・お知らせ・オリジナルクーポンを編集する（任意）</summary>
       <p class="mk-sublabel" style="margin-top:12px">トップバナー</p>
       <div class="ed-list" id="ed-banners"></div>
       <button type="button" class="ed-add" id="add-banner">＋ バナーを追加</button>
-      <p class="mk-sublabel" style="margin-top:16px">クーポン</p>
+      <p class="mk-sublabel" style="margin-top:16px">オリジナルのクーポン<small style="font-weight:500;color:var(--mk-sub)">（テンプレに無いものを自由に追加）</small></p>
       <div class="ed-list" id="ed-coupons"></div>
       <button type="button" class="ed-add" id="add-coupon">＋ クーポンを追加</button>
       <p class="mk-sublabel" style="margin-top:16px">お知らせ・配信</p>
@@ -3738,6 +3756,54 @@ function renderPhotoStrip(){
   };
 }
 
+/* ---- coupon templates（チェック式）---- */
+const UNIVERSAL_TEMPLATES = [
+  {id:"u_first",   e:"✨", title:"初回ご来店 特別クーポン", cond:"新規のお客様", days:30},
+  {id:"u_bday",    e:"🎂", title:"誕生月クーポンプレゼント", cond:"誕生月のみ", days:30},
+  {id:"u_refer",   e:"👥", title:"友だち紹介で特典プレゼント", cond:"紹介・ご来店で", days:60},
+  {id:"u_10off",   e:"🏷️", title:"お会計10%OFFクーポン", cond:"全メニュー対象", days:14},
+  {id:"u_500off",  e:"💴", title:"500円OFFクーポン", cond:"2,000円以上で", days:14},
+  {id:"u_rain",    e:"☔", title:"雨の日限定サービス", cond:"雨の日のみ", days:30},
+  {id:"u_weekday", e:"📅", title:"平日限定サービス", cond:"平日ご来店", days:21},
+  {id:"u_stamp",   e:"⭐", title:"スタンプ満タン特典", cond:"スタンプ特典", days:30},
+  {id:"u_sns",     e:"📱", title:"SNSフォローで1品サービス", cond:"フォロー画面ご提示", days:30},
+  {id:"u_group",   e:"🎉", title:"4名様以上でお会計10%OFF", cond:"宴会・グループ", days:30}
+];
+let cpTemplateMap = {};
+function industryTemplates(ind){
+  const p = PRESETS[ind] || PRESETS.yakiniku;
+  const preset = (p.coupons||[]).map((c,i)=>({id:"p_"+ind+"_"+i, e:c.e, title:c.title, cond:c.cond, days:c.days, on:true, cat:"おすすめ（"+p.label+"）"}));
+  const uni = UNIVERSAL_TEMPLATES.map(t=>({...t, on:false, cat:"定番（どの業種でも使える）"}));
+  return preset.concat(uni);
+}
+function renderCouponTemplates(){
+  const items = industryTemplates(mk.ind);
+  cpTemplateMap = {};
+  let html = "", lastCat = "";
+  for(const t of items){
+    cpTemplateMap[t.id] = t;
+    if(t.cat !== lastCat){ html += `<div class="tmpl-cat">${esc(t.cat)}</div>`; lastCat = t.cat; }
+    html += `<div class="tmpl-item${t.on?" on":""}" data-tid="${t.id}">
+      <span class="tm-check">${t.on?"✓":""}</span>
+      <span class="tm-e">${t.e}</span>
+      <span class="tm-b"><b>${esc(t.title)}</b><small>${esc(t.cond)}・${t.days}日間有効</small></span>
+    </div>`;
+  }
+  const box = $("#cp-templates");
+  box.innerHTML = html;
+  box.onclick = e=>{
+    const it = e.target.closest(".tmpl-item"); if(!it) return;
+    const on = !it.classList.contains("on");
+    it.classList.toggle("on", on);
+    $(".tm-check", it).textContent = on ? "✓" : "";
+  };
+}
+function checkedTemplateIds(){ return $$("#cp-templates .tmpl-item.on").map(el=>el.dataset.tid); }
+function checkedTemplates(){
+  return checkedTemplateIds().map(id=>{ const t = cpTemplateMap[id]; return t ? {e:t.e, title:t.title, cond:t.cond, days:t.days} : null; }).filter(Boolean);
+}
+function defaultTemplateIds(ind){ return industryTemplates(ind).filter(t=>t.on).map(t=>t.id); }
+
 /* ---- banner / coupon / notice editors ---- */
 // 各行に写真アップロード（wrap._img にデータURLを保持）を配線する共通ヘルパー
 function wireRowPhoto(wrap, label){
@@ -3856,6 +3922,7 @@ function initMaker(){
     $$(".ind-btn", ig).forEach(x=>{ x.classList.toggle("on", x===b); x.setAttribute("aria-checked", x===b); });
     if(!mk.customColor){ mk.color = PRESETS[mk.ind].color; renderSwatches(); }
     if(!mk.toneTouched){ setTone(TONE_BY_IND[mk.ind] || "fine"); }
+    renderCouponTemplates();
   });
   renderSwatches();
   $("#f-base").value = "";
@@ -3897,6 +3964,7 @@ function initMaker(){
   $("#add-banner").addEventListener("click", ()=>addBannerRow());
   $("#add-coupon").addEventListener("click", ()=>addCouponRow());
   $("#add-notice").addEventListener("click", ()=>addNoticeRow());
+  renderCouponTemplates();
 
   $("#btn-gen").addEventListener("click", generate);
   $("#btn-copy").addEventListener("click", copyUrl);
@@ -3909,6 +3977,7 @@ function initMaker(){
     $("#f-url").value = ""; $("#url-hint").textContent = "※ Instagramや一部サイトは取得できません。取得後は内容をご確認ください。";
     mk.photos = []; syncPrimary(); renderPhotoStrip();
     $("#ed-banners").innerHTML = ""; $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
+    renderCouponTemplates();
     mk.toneTouched = false; setTone(TONE_BY_IND[mk.ind] || "fine");
     $("#mk-result").hidden = true;
     $("#f-name").focus();
@@ -3925,6 +3994,7 @@ function initMaker(){
       if(last.c){ mk.color = last.c; mk.customColor = last.c !== PRESETS[mk.ind].color; }
       $$(".ind-btn", ig).forEach(x=>{ const on = x.dataset.k===mk.ind; x.classList.toggle("on",on); x.setAttribute("aria-checked",on); });
       renderSwatches();
+      renderCouponTemplates();
       if(last.tn){ mk.toneTouched = true; setTone(last.tn); }
       else setTone(TONE_BY_IND[mk.ind] || "fine");
     }
@@ -3965,7 +4035,14 @@ function readForm(){
   cfg.tn = mk.tone || "fine";
   if(mk.photos.length){ cfg.ph = mk.photos[0]; if(mk.photos.length>1) cfg.phs = mk.photos.slice(0,MAX_PHOTOS); }
   const bns = bannerRows(); if(bns.length) cfg.bn = bns;
-  const cps = couponRows(); if(cps.length) cfg.cp = cps;
+  // クーポン：チェックしたテンプレ ＋ オリジナル。既定のまま（業態プリセット＝全ON・追加なし）ならURLに含めず軽量化
+  const custom = couponRows();
+  const curIds = checkedTemplateIds().slice().sort().join(",");
+  const defIds = defaultTemplateIds(mk.ind).slice().sort().join(",");
+  if(!(curIds === defIds && !custom.length)){
+    const allCp = checkedTemplates().concat(custom);
+    if(allCp.length) cfg.cp = allCp;
+  }
   const nts = noticeRows(); if(nts.length) cfg.nt = nts;
   return cfg;
 }
@@ -4048,7 +4125,13 @@ function renderHistory(){
     $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
     mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
     $("#ed-banners").innerHTML = ""; (x.bn||[]).forEach(addBannerRow);
-    $("#ed-coupons").innerHTML = ""; (x.cp||[]).forEach(addCouponRow);
+    // クーポン：カスタム指定があれば全テンプレOFF＋その内容を再現、なければ業態既定のまま
+    renderCouponTemplates();
+    $("#ed-coupons").innerHTML = "";
+    if(x.cp && x.cp.length){
+      $$("#cp-templates .tmpl-item.on").forEach(el=>{ el.classList.remove("on"); $(".tm-check",el).textContent=""; });
+      x.cp.forEach(addCouponRow);
+    }
     $("#ed-notices").innerHTML = ""; (x.nt||[]).forEach(addNoticeRow);
     generate();
   };
