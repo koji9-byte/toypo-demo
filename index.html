@@ -3651,7 +3651,18 @@ function applyIndustry(key){
   $$(".ind-btn").forEach(el=>{ const on = el.dataset.k===key; el.classList.toggle("on",on); el.setAttribute("aria-checked",on); });
   if(!mk.customColor){ mk.color = PRESETS[key].color; }
   renderSwatches();
+  renderCouponTemplates();
   if(!mk.toneTouched){ setTone(TONE_BY_IND[key] || "fine"); }
+}
+/* B案簡易版：業態別おすすめの定番クーポン（自動チェック） */
+const B_RECOMMEND = {
+  yakiniku:["u_first","u_group"], izakaya:["u_first","u_group"], bar:["u_first","u_group"],
+  ramen:["u_first","u_sns"], cafe:["u_first","u_sns"], retail:["u_first","u_sns"],
+  beauty:["u_first","u_bday"], relax:["u_first","u_bday"], fitness:["u_first","u_refer"]
+};
+function checkTemplate(id){
+  const el = document.querySelector('#cp-templates [data-tid="'+id+'"]');
+  if(el && !el.classList.contains("on")){ el.classList.add("on"); const c=$(".tm-check",el); if(c) c.textContent="✓"; }
 }
 function cleanTitle(t){
   let s = (t||"").split(/[|｜\-–—:：]/)[0].trim();
@@ -3715,9 +3726,20 @@ async function autofillFromUrl(){
     const imgs = await fetchPageImages(url, primary);
     if(imgs.length){ mk.photos = imgs; syncPrimary(); renderPhotoStrip(); $("#f-photo").value = ""; got.push(imgs.length+"枚の写真"); }
     const g = guessIndustry([d.title, d.description, url].join(" "));
-    if(g){ applyIndustry(g); got.push("業態（"+PRESETS[g].label+"）"); }
+    if(g){
+      applyIndustry(g);
+      got.push("業態（"+PRESETS[g].label+"）");
+      // B案簡易版：業態に合ったおすすめクーポンを自動チェック
+      (B_RECOMMEND[g]||[]).forEach(checkTemplate);
+      // 店名を差し込んだ会員特典クーポンを自動追加
+      const store = name || $("#f-name").value.trim() || "当店";
+      $("#ed-coupons").innerHTML = "";
+      $("#mk-editors").open = true;
+      addCouponRow({e:"🎁", title:"「"+store+"」アプリ会員 登録特典", cond:"初回ご登録で", days:30});
+      got.push("おすすめクーポン自動選択");
+    }
     hint.innerHTML = got.length
-      ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。写真は不要なものを×で外せます。内容を確認して調整してください。`
+      ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。クーポンはチェックで調整、写真は不要なものを×で外せます。`
       : "情報を取得できませんでした。お手数ですが手動で入力してください。";
   }catch(e){
     hint.textContent = "このURLからは自動取得できませんでした（Instagram・食べログ等は非対応の場合があります）。手動で入力してください。";
