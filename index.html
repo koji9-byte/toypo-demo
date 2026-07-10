@@ -169,6 +169,11 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .cp-img.cp-photo{background-size:cover !important;background-position:center !important}
 .cp-img.cp-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(155deg,rgba(0,0,0,.12),rgba(0,0,0,.60))}
 .cp-img.cp-photo .cp-e{filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))}
+/* 写真がある時は絵文字と白枠を隠して写真をきれいに見せる */
+.cp-img.cp-photo .cp-e,.cp-img.cp-photo .cp-frame{display:none}
+.cp-img.cp-photo .cp-eyebrow{top:auto;bottom:8px;left:8px;right:auto;text-align:left;font-size:8px;background:rgba(20,17,21,.55);padding:2px 7px;border-radius:5px;backdrop-filter:blur(2px)}
+/* home notices */
+.nt-card.home-nt p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* 上品 fine — 大理石×金の額装 */
 #phone[data-tone="fine"] .cp-card{background:#FBF7EF;border-color:#E7DCC6;box-shadow:0 6px 16px rgba(120,96,48,.14)}
@@ -483,7 +488,8 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .cat.on{color:var(--ink);border-bottom-color:var(--ink)}
 .demo-note{margin:12px 16px;background:#FCE8EC;color:#C2233F;font-size:12px;line-height:1.7;padding:11px 14px;border-radius:10px}
 .mi-card{margin:12px 16px 0;background:var(--card);border-radius:14px;padding:13px;display:flex;gap:13px;width:calc(100% - 32px);text-align:left;color:var(--ink);position:relative}
-.mi-img{flex:0 0 84px;height:84px;border-radius:11px;display:grid;place-items:center;font-size:40px}
+.mi-img{flex:0 0 84px;height:84px;border-radius:11px;display:grid;place-items:center;font-size:40px;overflow:hidden}
+.mi-img img{width:100%;height:100%;object-fit:cover;display:block}
 .mi-body{flex:1;min-width:0}
 .mi-body b{font-size:14.5px;line-height:1.4;display:block}
 .mi-body .d{font-size:11.5px;color:var(--sub);margin-top:4px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -4109,13 +4115,8 @@ function homeHtml(){
     ...D.bonusCoupons.map((c,i)=>({...c, id:"bonus"+i, nw:true})),
     ...cpSrc.map((c,i)=>({...c, bg:c.bg||CPBG[i%CPBG.length], id:"cp"+i}))
   ];
-  // 取得写真が複数あれば、写真未設定のクーポンにメイン以外の写真を割り当てて本物感を出す
-  const phs = demoPhotos(cfg);
-  if(phs.length >= 2){
-    const pool = phs.slice(1);
-    let pi = 0;
-    coupons.forEach(c=>{ if(!c.img){ c.img = pool[pi % pool.length]; pi++; } });
-  }
+  // 取得写真は文言と噛み合わないため、クーポンには自動で載せない
+  // （クーポン写真は編集画面で個別指定したものだけ使う）。写真はバナー・メニュー・店舗情報ギャラリーで活用。
   const expDate = days => { const d = new Date(Date.now()+days*86400000); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")} まで有効`; };
 
   return `
@@ -4226,8 +4227,28 @@ function homeHtml(){
     <span class="sub-body"><b>${esc(P.subsc.t)}</b><p>${esc(P.subsc.d)}</p><span class="pr">${esc(P.subsc.pr)}<small>（税込）</small></span></span>
   </button>
 
-  <p class="app-foot">これは <b>toypo</b> のデモ画面です。実際の注文・決済は行われません。<br>Powered by toypo</p>
+  <section class="sec">
+    <div class="sec-h"><h2>お知らせ</h2><span class="more" data-go="news">すべて見る</span></div>
+  </section>
+  ${homeNotices(cfg, P)}
+
+  <p class="app-foot">Powered by <b>toypo</b></p>
   `;
+}
+/* ホームのお知らせプレビュー（上位2件） */
+function homeNotices(cfg, P){
+  const src = (cfg.nt && cfg.nt.length) ? cfg.nt.map((n,i)=>({...n, nw:i===0})) : P.notices;
+  const phs = demoPhotos(cfg);
+  return src.slice(0,3).map((n,i)=>`
+    <div class="nt-card home-nt" data-go="news">
+      <span class="nt-thumb">${n.img?`<img src="${esc(n.img)}" alt="">`:(phs.length?`<img src="${esc(phs[i%phs.length])}" alt="" onerror="this.parentNode.textContent='${P.e}'">`:`<span class="nt-ph">${P.e}</span>`)}</span>
+      <span class="nt-main">
+        <span class="nt-store">${esc(cfg.n)}</span>
+        <b>${esc(n.t)}</b>
+        <span class="nt-d">${NT_DATES[i]||"先月"}${n.nw?'<span class="nt-new">NEW</span>':""}</span>
+        <p>${esc(n.d)}</p>
+      </span>
+    </div>`).join("");
 }
 
 function bindHome(sc){
@@ -4265,6 +4286,7 @@ function bindHome(sc){
       else toast("デモのため一部画面は省略しています");
       return;
     }
+    if(e.target.closest("[data-go='news']")){ closeMember(); D.tab="news"; renderNav(); renderTab(); return; }
     if(e.target.closest("#btn-survey")){ openSurvey(); return; }
     if(e.target.closest("#btn-subsc")){ openSubsc(); return; }
     if(e.target.closest(".more")){ toast("デモのため一覧画面は省略しています"); }
@@ -4521,6 +4543,7 @@ function menuHtml(){
   const {cfg, P} = D;
   if(D.seg === "history") return historyHtml();
   const cat = P.cats.find(c=>c.k===D.cat) || P.cats[0];
+  const phs = demoPhotos(cfg);
   return `
   <header class="app-head" style="justify-content:center">
     <span class="ttl" style="flex:0 1 auto;text-align:center">${esc(cfg.n)}</span>
@@ -4532,17 +4555,19 @@ function menuHtml(){
     ${P.cats.map(c=>`<button class="cat${cat.k===c.k?" on":""}" data-cat="${c.k}">${c.label}</button>`).join("")}
   </div>
   <p class="demo-note">※ デモ画面のため、実際の注文・決済は行われません。<br>カートに入れて注文フローをお試しいただけます。</p>
-  ${cat.items.map(it=>`
+  ${cat.items.map((it,idx)=>{
+    const ph = it.img || (phs.length ? phs[idx % phs.length] : "");
+    return `
     <button class="mi-card" data-add="${it.id}">
       ${D.cart[it.id] ? `<span class="mi-cnt">${D.cart[it.id]}</span>` : ""}
-      <span class="mi-img" style="background:var(--brand-soft)">${it.e}</span>
+      <span class="mi-img" style="background:var(--brand-soft)">${ph?`<img src="${esc(ph)}" alt="" onerror="this.parentNode.textContent='${it.e}'">`:it.e}</span>
       <span class="mi-body">
         <b>${esc(it.n)}</b>
         ${it.d ? `<span class="d">${esc(it.d)}</span>` : ""}
         <span class="mi-price">${it.op?`<s>${yen(it.op)}</s>`:""}${yen(it.p)}</span>
         ${it.off?`<span class="mi-off">📣 ${esc(it.off)}</span>`:""}
       </span>
-    </button>`).join("")}
+    </button>`;}).join("")}
   <div style="height:20px"></div>
   ${cartCount()>0 ? `
   <div class="cart-bar">
@@ -4708,11 +4733,15 @@ function openPicker(){
 }
 
 /* ---------- news / info ---------- */
+const NT_DATES = ["今日","2日前","5日前","1週間前","2週間前","先月"];
 function newsHtml(){
   const {cfg, P} = D;
   const notices = (cfg.nt && cfg.nt.length)
     ? cfg.nt.map((n,i)=>({...n, nw:i===0}))
     : P.notices;
+  const phs = demoPhotos(cfg);
+  const thumb = (n,i)=> n.img ? `<img src="${esc(n.img)}" alt="">`
+    : (phs.length ? `<img src="${esc(phs[i%phs.length])}" alt="" onerror="this.parentNode.textContent='${P.e}'">` : `<span class="nt-ph">${P.e}</span>`);
   return `
   <header class="app-head">
     ${miniLogo(cfg)}
@@ -4720,24 +4749,24 @@ function newsHtml(){
   </header>
   ${notices.map((n,i)=>`
     <button class="nt-card" data-nt="${i}">
-      <span class="nt-thumb">${n.img?`<img src="${esc(n.img)}" alt="">`:`<span class="nt-ph">${P.e}</span>`}</span>
+      <span class="nt-thumb">${thumb(n,i)}</span>
       <span class="nt-main">
         <span class="nt-store">${esc(cfg.n)}</span>
         <b>${esc(n.t)}</b>
-        <span class="nt-d">${n.nw?"今日":"3日前"}${n.nw?'<span class="nt-new">NEW</span>':""}</span>
+        <span class="nt-d">${NT_DATES[i]||"先月"}${n.nw?'<span class="nt-new">NEW</span>':""}</span>
         <p>${esc(n.d)}</p>
       </span>
     </button>`).join("")}
   <button class="nt-card" data-nt="x">
-    <span class="nt-thumb"><span class="nt-ph">📣</span></span>
+    <span class="nt-thumb">${phs.length?`<img src="${esc(phs[notices.length%phs.length])}" alt="">`:'<span class="nt-ph">🎁</span>'}</span>
     <span class="nt-main">
       <span class="nt-store">${esc(cfg.n)}</span>
-      <b>アプリ会員限定の先行情報をお届けします</b>
-      <span class="nt-d">1週間前</span>
-      <p>実際の運用では、新商品・キャンペーン・限定クーポンなどをプッシュ通知でお客様のスマホに直接お届けできます。</p>
+      <b>アプリ会員だけの限定クーポンを配信中</b>
+      <span class="nt-d">${NT_DATES[notices.length]||"先月"}</span>
+      <p>友だち紹介キャンペーンや、雨の日限定クーポンなど、会員様だけのお得な情報をお届けしています。通知をオンにして見逃さないようにしましょう。</p>
     </span>
   </button>
-  <p class="app-foot">Powered by toypo（デモ画面）</p>
+  <p class="app-foot">Powered by <b>toypo</b></p>
   `;
 }
 function infoHtml(){
