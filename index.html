@@ -4302,7 +4302,7 @@ function homeHtml(){
 
   <div class="banner-wrap" id="banners">
     ${banners.map((b,i)=>{
-      const photo = b.img || (i===0 && cfg.ph) || "";
+      const photo = b.img || (i===0 && demoPhotos(cfg)[0]) || "";
       const st = photo
         ? `background-image:url('${esc(photo)}');background-size:cover;background-position:center`
         : `background:linear-gradient(120deg, var(--brand-deep), var(--brand) 70%, ${mix(D.brand,"#FFFFFF",0.25)})`;
@@ -4717,7 +4717,6 @@ function menuHtml(){
   const {cfg, P} = D;
   if(D.seg === "history") return historyHtml();
   const cat = P.cats.find(c=>c.k===D.cat) || P.cats[0];
-  const phs = demoPhotos(cfg);
   return `
   <header class="app-head" style="justify-content:center">
     <span class="ttl" style="flex:0 1 auto;text-align:center">${esc(cfg.n)}</span>
@@ -4730,7 +4729,8 @@ function menuHtml(){
   </div>
   <p class="demo-note">※ デモ画面のため、実際の注文・決済は行われません。<br>カートに入れて注文フローをお試しいただけます。</p>
   ${cat.items.map((it,idx)=>{
-    const ph = it.img || (phs.length ? phs[idx % phs.length] : "");
+    // メニュー名と無関係な写真が付くと逆効果なので、自動割当はしない（個別指定 it.img のみ使用）
+    const ph = it.img || "";
     return `
     <button class="mi-card" data-add="${it.id}">
       ${D.cart[it.id] ? `<span class="mi-cnt">${D.cart[it.id]}</span>` : ""}
