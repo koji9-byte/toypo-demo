@@ -168,10 +168,9 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .cp-corner::after{content:"コース";display:block;font-size:6px;font-weight:700;letter-spacing:.06em;margin-top:1px}
 .cp-img.cp-photo{background-size:cover !important;background-position:center !important}
 .cp-img.cp-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(155deg,rgba(0,0,0,.12),rgba(0,0,0,.60))}
-.cp-img.cp-photo .cp-e{filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))}
-/* 写真がある時は絵文字と白枠を隠して写真をきれいに見せる */
-.cp-img.cp-photo .cp-e,.cp-img.cp-photo .cp-frame{display:none}
-.cp-img.cp-photo .cp-eyebrow{top:auto;bottom:8px;left:8px;right:auto;text-align:left;font-size:8px;background:rgba(20,17,21,.55);padding:2px 7px;border-radius:5px;backdrop-filter:blur(2px)}
+/* 写真/イラストがある時は絵文字・白枠・装飾を隠してアートを主役に */
+.cp-img.cp-photo .cp-e,.cp-img.cp-photo .cp-frame,.cp-img.cp-photo .cp-eyebrow,.cp-has-photo .cp-corner{display:none}
+.cp-img.cp-photo::before{background:linear-gradient(160deg,rgba(0,0,0,.05),rgba(0,0,0,.32))}
 /* home notices */
 .nt-card.home-nt p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
@@ -204,6 +203,24 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 #phone[data-tone="lux"] .cp-exp{background:linear-gradient(90deg,#8A6D2E,#4C3A15);color:#F3E7C4}
 #phone[data-tone="lux"] .cp-card.used::after{background:rgba(20,17,21,.88);color:#EBCF84;border-color:#EBCF84}
 #phone[data-tone="lux"] .cp-new,#phone[data-tone="fine"] .cp-new{left:auto;right:8px}
+/* 絵文字を金のリングに収めて高級感を出す（写真なしのlux/fine） */
+#phone[data-tone="lux"] .cp-img:not(.cp-photo) .cp-e,#phone[data-tone="fine"] .cp-img:not(.cp-photo) .cp-e{
+  display:grid;place-items:center;width:56px;height:56px;border-radius:50%;font-size:26px;
+}
+#phone[data-tone="lux"] .cp-img:not(.cp-photo) .cp-e{
+  border:1px solid rgba(235,207,132,.55);
+  background:radial-gradient(circle at 38% 32%,rgba(235,207,132,.16),rgba(235,207,132,0) 70%);
+  box-shadow:0 0 0 4px rgba(235,207,132,.06);
+}
+#phone[data-tone="fine"] .cp-img:not(.cp-photo) .cp-e{
+  border:1px solid rgba(176,138,62,.5);
+  background:radial-gradient(circle at 38% 32%,rgba(176,138,62,.14),rgba(176,138,62,0) 70%);
+}
+/* 斜めの金の箔ツヤ */
+#phone[data-tone="lux"] .cp-img:not(.cp-photo)::after,#phone[data-tone="fine"] .cp-img:not(.cp-photo)::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(118deg,transparent 34%,rgba(235,207,132,.12) 50%,transparent 66%);
+}
 
 /* ================= DEMO: member card subscreen ================= */
 .vip[data-open]{cursor:pointer}
@@ -4197,7 +4214,7 @@ function homeHtml(){
   </section>
   <div class="coupon-strip">
     ${coupons.map((c,i)=>`
-      <button class="cp-card${D.usedCoupons[c.id]?" used":""}" data-cp="${c.id}">
+      <button class="cp-card${D.usedCoupons[c.id]?" used":""}${c.img?" cp-has-photo":""}" data-cp="${c.id}">
         ${c.nw?'<span class="cp-new">NEW</span>':""}
         <span class="cp-corner">${String.fromCharCode(65 + (i % 26))}</span>
         <span class="cp-img${c.img?" cp-photo":""}" style="${c.img?`background-image:url('${esc(c.img)}')`:`background:${c.bg}`}"><span class="cp-frame"></span><span class="cp-eyebrow">SPECIAL COUPON</span><span class="cp-e">${c.e}</span></span>
