@@ -162,6 +162,17 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .ed-add{border:1.5px dashed var(--mk-line);background:none;border-radius:12px;padding:11px;width:100%;color:var(--mk-sub);font-weight:700;font-size:13px}
 .ed-add:hover{color:var(--mk-ink);border-color:var(--mk-sub)}
 
+/* ---- menu photo editor ---- */
+.mn-cat{font-size:11px;font-weight:700;color:var(--mk-sub);margin:12px 0 4px}
+.mn-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--mk-line)}
+.mn-row:last-child{border-bottom:none}
+.mn-row .mn-th{flex:0 0 40px;width:40px;height:40px;border-radius:9px;background:var(--mk-bg);border:1px solid var(--mk-line);display:grid;place-items:center;font-size:18px;overflow:hidden}
+.mn-row .mn-th img{width:100%;height:100%;object-fit:cover;display:block}
+.mn-row .mn-nm{flex:1;min-width:0;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mn-row .mn-btn{flex:0 0 auto;border:1.5px solid var(--mk-line);background:var(--mk-bg);border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:700;color:var(--mk-sub)}
+.mn-row .mn-btn.set{border-color:#B08A3E;color:#B08A3E}
+.mn-row .mn-clear{flex:0 0 auto;color:var(--mk-sub);font-size:15px;padding:2px 4px}
+
 /* ================= DEMO: photo backgrounds ================= */
 .banner.has-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(0,0,0,.68),rgba(0,0,0,.20))}
 .banner.has-photo h3,.banner.has-photo p,.banner.has-photo .b-e,.banner.has-photo .b-new{position:relative;z-index:1}
@@ -766,6 +777,8 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
       <p class="mk-sublabel" style="margin-top:16px">オリジナルのクーポン<small style="font-weight:500;color:var(--mk-sub)">（テンプレに無いものを自由に追加）</small></p>
       <div class="ed-list" id="ed-coupons"></div>
       <button type="button" class="ed-add" id="add-coupon">＋ クーポンを追加</button>
+      <p class="mk-sublabel" style="margin-top:16px">メニュー写真<small style="font-weight:500;color:var(--mk-sub)">（品ごとに指定。URL取得写真は内容が一致した品へ自動配置されます）</small></p>
+      <div id="ed-menu"></div>
       <p class="mk-sublabel" style="margin-top:16px">お知らせ・配信</p>
       <div class="ed-list" id="ed-notices"></div>
       <button type="button" class="ed-add" id="add-notice">＋ お知らせを追加</button>
@@ -3602,7 +3615,7 @@ window.addEventListener("hashchange", route);
    MAKER
 ================================================================ */
 const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false,
-  tone:"fine", photo:"", photos:[] };
+  tone:"fine", photo:"", photos:[], photosAlt:[], menuImgs:{} };
 const MAX_PHOTOS = 5;
 
 /* default tone per industry (単価高め=高級寄り) */
@@ -3652,6 +3665,7 @@ function applyIndustry(key){
   if(!mk.customColor){ mk.color = PRESETS[key].color; }
   renderSwatches();
   renderCouponTemplates();
+  mk.menuImgs = {}; renderMenuPhotoEditor();
   if(!mk.toneTouched){ setTone(TONE_BY_IND[key] || "fine"); }
 }
 /* B案簡易版：業態別おすすめの定番クーポン（自動チェック） */
@@ -3678,21 +3692,28 @@ function looksLikePhoto(u){
   if(/(\/img\/|\/images?\/|\/photo|\/upload|cloudfront|cloudinary|\.cdn|imgix|\.image|sku_images)/.test(s)) return true;
   return false;
 }
-// ページを読み取りサービス経由で取得し、複数の写真URLを抽出（best-effort・サーバー不要）
+// ページを読み取りサービス経由で取得し、写真URL＋説明文(alt)を抽出（best-effort・サーバー不要）
+// alt はメニュー・クーポンへの「内容が一致した時だけ」の自動配置に使う
 async function fetchPageImages(url, primary){
   const out = [], seen = new Set();
-  const add = u => { if(u && out.length<MAX_PHOTOS && !seen.has(u) && /^https?:/.test(u) && looksLikePhoto(u)){ seen.add(u); out.push(u); } };
-  if(primary) add(primary);
-  // 1) Jina Reader: JSレンダリング対応でSPAサイトにも強い
+  const add = (u, alt) => {
+    if(!u || out.length>=MAX_PHOTOS || seen.has(u) || !/^https?:/.test(u) || !looksLikePhoto(u)) return;
+    seen.add(u);
+    out.push({url:u, alt:String(alt||"").replace(/^Image \d+:?\s*/i,"").trim()});
+  };
+  if(primary) add(primary, "");
+  // 1) Jina Reader: JSレンダリング対応でSPAサイトにも強い。markdownの ![alt](url) からaltも取る
   try{
     const res = await fetch("https://r.jina.ai/" + url);
     if(res.ok){
       const txt = await res.text();
-      const re = /https?:\/\/[^\s)"'<>\]]+?\.(?:jpe?g|png|webp)(?:\?[^\s)"'<>\]]*)?/gi;
-      let m; while((m = re.exec(txt)) && out.length < MAX_PHOTOS){ add(m[0]); }
+      const reMd = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/gi;
+      let m; while((m = reMd.exec(txt)) && out.length < MAX_PHOTOS){ add(m[2], m[1]); }
+      const reBare = /https?:\/\/[^\s)"'<>\]]+?\.(?:jpe?g|png|webp)(?:\?[^\s)"'<>\]]*)?/gi;
+      while((m = reBare.exec(txt)) && out.length < MAX_PHOTOS){ add(m[0], ""); }
     }
   }catch(e){}
-  // 2) fallback: allorigins raw HTML
+  // 2) fallback: allorigins raw HTML（img の alt 属性も取る）
   if(out.length < 2){
     try{
       const res = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url));
@@ -3701,12 +3722,31 @@ async function fetchPageImages(url, primary){
         const doc = new DOMParser().parseFromString(html, "text/html");
         const base = new URL(url);
         const abs = s => { try{ return new URL(s, base).href.split("#")[0]; }catch(e){ return null; } };
-        doc.querySelectorAll('meta[property="og:image"],meta[name="twitter:image"]').forEach(mt=>add(abs(mt.getAttribute("content"))));
-        for(const im of doc.querySelectorAll("img")){ if(out.length>=MAX_PHOTOS) break; add(abs(im.getAttribute("src")||im.getAttribute("data-src")||im.getAttribute("data-original")||im.getAttribute("data-lazy-src"))); }
+        doc.querySelectorAll('meta[property="og:image"],meta[name="twitter:image"]').forEach(mt=>add(abs(mt.getAttribute("content")), ""));
+        for(const im of doc.querySelectorAll("img")){ if(out.length>=MAX_PHOTOS) break; add(abs(im.getAttribute("src")||im.getAttribute("data-src")||im.getAttribute("data-original")||im.getAttribute("data-lazy-src")), im.getAttribute("alt")); }
       }
     }catch(e){}
   }
   return out.slice(0, MAX_PHOTOS);
+}
+
+/* ---- 写真の内容マッチング（altとファイル名に品名の語が含まれる時だけ割当） ---- */
+const MATCH_STOP = ["セット","メニュー","限定","サービス","クーポン","特典","無料","割引","プレゼント","来店","会計","注文","選べる","ポイント","初回","特別","平日","誕生","紹介","トッピング","おすすめ","オススメ"];
+function contentTokens(s){
+  const t = String(s||"").match(/[゠-ヿ]{2,}|[一-鿿]{2,}|[A-Za-z]{3,}/g) || [];
+  return t.filter(x=>!MATCH_STOP.includes(x));
+}
+function findPhotoFor(name){
+  const toks = contentTokens(name);
+  if(!toks.length) return "";
+  for(let i=0;i<mk.photos.length;i++){
+    let dec = mk.photos[i];
+    if(dec.startsWith("data:")) dec = ""; // アップロード写真は中身の手掛かりが無いので対象外
+    try{ dec = decodeURIComponent(dec); }catch(e){}
+    const hay = ((mk.photosAlt[i]||"") + " " + dec).toLowerCase();
+    if(toks.some(t=>hay.includes(t.toLowerCase()))) return mk.photos[i];
+  }
+  return "";
 }
 async function autofillFromUrl(){
   const url = $("#f-url").value.trim();
@@ -3724,7 +3764,12 @@ async function autofillFromUrl(){
     if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
     const primary = (d.image && d.image.url) ? d.image.url : "";
     const imgs = await fetchPageImages(url, primary);
-    if(imgs.length){ mk.photos = imgs; syncPrimary(); renderPhotoStrip(); $("#f-photo").value = ""; got.push(imgs.length+"枚の写真"); }
+    if(imgs.length){
+      mk.photos = imgs.map(x=>x.url);
+      mk.photosAlt = imgs.map(x=>x.alt);
+      syncPrimary(); renderPhotoStrip(); $("#f-photo").value = "";
+      got.push(imgs.length+"枚の写真");
+    }
     const g = guessIndustry([d.title, d.description, url].join(" "));
     if(g){
       applyIndustry(g);
@@ -3748,13 +3793,14 @@ async function autofillFromUrl(){
   }
 }
 function syncPrimary(){ mk.photo = mk.photos[0] || ""; }
-function addPhotos(list){
-  for(const u of list){
-    if(!u) continue;
-    if(mk.photos.length >= MAX_PHOTOS) break;
-    if(mk.photos.includes(u)) continue;
+function addPhotos(list, alts){
+  list.forEach((u,i)=>{
+    if(!u) return;
+    if(mk.photos.length >= MAX_PHOTOS) return;
+    if(mk.photos.includes(u)) return;
     mk.photos.push(u);
-  }
+    mk.photosAlt.push((alts && alts[i]) || "");
+  });
   syncPrimary(); renderPhotoStrip();
 }
 function renderPhotoStrip(){
@@ -3774,7 +3820,7 @@ function renderPhotoStrip(){
   $("#btn-photo-clear").hidden = false;
   strip.onclick = e=>{
     const d = e.target.closest("[data-del]");
-    if(d){ mk.photos.splice(+d.dataset.del,1); syncPrimary(); renderPhotoStrip(); }
+    if(d){ mk.photos.splice(+d.dataset.del,1); mk.photosAlt.splice(+d.dataset.del,1); syncPrimary(); renderPhotoStrip(); }
   };
 }
 
@@ -3825,6 +3871,41 @@ function checkedTemplates(){
   return checkedTemplateIds().map(id=>{ const t = cpTemplateMap[id]; return t ? {e:t.e, title:t.title, cond:t.cond, days:t.days} : null; }).filter(Boolean);
 }
 function defaultTemplateIds(ind){ return industryTemplates(ind).filter(t=>t.on).map(t=>t.id); }
+
+/* ---- menu photo editor（品ごとに写真を指定） ---- */
+function renderMenuPhotoEditor(){
+  const box = $("#ed-menu");
+  if(!box) return;
+  const P = PRESETS[mk.ind];
+  box.innerHTML = P.cats.map(cat=>
+    `<div class="mn-cat">${esc(cat.label)}</div>` +
+    cat.items.map(it=>{
+      const ph = mk.menuImgs[it.id] || "";
+      return `<div class="mn-row" data-mid="${it.id}">
+        <span class="mn-th">${ph?`<img src="${esc(ph)}" alt="">`:it.e}</span>
+        <span class="mn-nm">${esc(it.n)}</span>
+        ${ph?`<button type="button" class="mn-clear" aria-label="写真を外す">×</button>`:""}
+        <button type="button" class="mn-btn${ph?" set":""}">${ph?"変更":"＋ 写真"}</button>
+        <input type="file" class="mn-file" accept="image/*" hidden>
+      </div>`;
+    }).join("")
+  ).join("");
+  box.onclick = async e=>{
+    const row = e.target.closest(".mn-row"); if(!row) return;
+    const id = row.dataset.mid;
+    if(e.target.closest(".mn-clear")){ delete mk.menuImgs[id]; renderMenuPhotoEditor(); return; }
+    if(e.target.closest(".mn-btn")){ $(".mn-file", row).click(); }
+  };
+  box.onchange = async e=>{
+    const inp = e.target.closest(".mn-file"); if(!inp) return;
+    const row = inp.closest(".mn-row"); const id = row.dataset.mid;
+    const f = inp.files && inp.files[0]; if(!f) return;
+    const btn = $(".mn-btn", row); btn.textContent = "圧縮中…";
+    try{ mk.menuImgs[id] = await compressImage(f, 480, 0.7); }catch(err){}
+    inp.value = "";
+    renderMenuPhotoEditor();
+  };
+}
 
 /* ---- banner / coupon / notice editors ---- */
 // 各行に写真アップロード（wrap._img にデータURLを保持）を配線する共通ヘルパー
@@ -3945,6 +4026,7 @@ function initMaker(){
     if(!mk.customColor){ mk.color = PRESETS[mk.ind].color; renderSwatches(); }
     if(!mk.toneTouched){ setTone(TONE_BY_IND[mk.ind] || "fine"); }
     renderCouponTemplates();
+    mk.menuImgs = {}; renderMenuPhotoEditor();
   });
   renderSwatches();
   $("#f-base").value = "";
@@ -3978,9 +4060,10 @@ function initMaker(){
     e.target.value = "";
   });
   $("#btn-photo-clear").addEventListener("click", ()=>{
-    mk.photos = []; $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
+    mk.photos = []; mk.photosAlt = []; $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
   });
   renderPhotoStrip();
+  renderMenuPhotoEditor();
 
   // editors
   $("#add-banner").addEventListener("click", ()=>addBannerRow());
@@ -3997,9 +4080,10 @@ function initMaker(){
   $("#btn-new").addEventListener("click", ()=>{
     $("#f-name").value = ""; $("#f-banner").value = ""; $("#f-photo").value = "";
     $("#f-url").value = ""; $("#url-hint").textContent = "※ Instagramや一部サイトは取得できません。取得後は内容をご確認ください。";
-    mk.photos = []; syncPrimary(); renderPhotoStrip();
+    mk.photos = []; mk.photosAlt = []; mk.menuImgs = {}; syncPrimary(); renderPhotoStrip();
     $("#ed-banners").innerHTML = ""; $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
     renderCouponTemplates();
+    renderMenuPhotoEditor();
     mk.toneTouched = false; setTone(TONE_BY_IND[mk.ind] || "fine");
     $("#mk-result").hidden = true;
     $("#f-name").focus();
@@ -4017,6 +4101,7 @@ function initMaker(){
       $$(".ind-btn", ig).forEach(x=>{ const on = x.dataset.k===mk.ind; x.classList.toggle("on",on); x.setAttribute("aria-checked",on); });
       renderSwatches();
       renderCouponTemplates();
+      renderMenuPhotoEditor();
       if(last.tn){ mk.toneTouched = true; setTone(last.tn); }
       else setTone(TONE_BY_IND[mk.ind] || "fine");
     }
@@ -4061,10 +4146,24 @@ function readForm(){
   const custom = couponRows();
   const curIds = checkedTemplateIds().slice().sort().join(",");
   const defIds = defaultTemplateIds(mk.ind).slice().sort().join(",");
-  if(!(curIds === defIds && !custom.length)){
-    const allCp = checkedTemplates().concat(custom);
-    if(allCp.length) cfg.cp = allCp;
-  }
+  const cpDefault = (curIds === defIds && !custom.length);
+  let allCp = cpDefault ? PRESETS[mk.ind].coupons.map(c=>({e:c.e, title:c.title, cond:c.cond, days:c.days})) : checkedTemplates().concat(custom);
+  // 写真の内容がクーポン名と一致した時だけ自動配置（不一致なら付けない）
+  let cpMatched = false;
+  allCp = allCp.map(c=>{
+    if(c.img) return c;
+    const ph = findPhotoFor(c.title);
+    if(ph){ cpMatched = true; return {...c, img:ph}; }
+    return c;
+  });
+  if(!cpDefault || cpMatched){ if(allCp.length) cfg.cp = allCp; }
+  // メニュー写真：手動指定を最優先、なければ内容が一致した取得写真を自動配置
+  const mi = {};
+  PRESETS[mk.ind].cats.forEach(cat=>cat.items.forEach(it=>{
+    const ph = mk.menuImgs[it.id] || findPhotoFor(it.n);
+    if(ph) mi[it.id] = ph;
+  }));
+  if(Object.keys(mi).length) cfg.mi = mi;
   const nts = noticeRows(); if(nts.length) cfg.nt = nts;
   return cfg;
 }
@@ -4144,7 +4243,10 @@ function renderHistory(){
     renderSwatches();
     // restore photos / tone / editors
     mk.photos = (x.phs && x.phs.length) ? x.phs.slice() : (x.ph ? [x.ph] : []);
+    mk.photosAlt = mk.photos.map(()=>"");
+    mk.menuImgs = x.mi ? {...x.mi} : {};
     $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
+    renderMenuPhotoEditor();
     mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
     $("#ed-banners").innerHTML = ""; (x.bn||[]).forEach(addBannerRow);
     // クーポン：カスタム指定があれば全テンプレOFF＋その内容を再現、なければ業態既定のまま
@@ -4729,8 +4831,8 @@ function menuHtml(){
   </div>
   <p class="demo-note">※ デモ画面のため、実際の注文・決済は行われません。<br>カートに入れて注文フローをお試しいただけます。</p>
   ${cat.items.map((it,idx)=>{
-    // メニュー名と無関係な写真が付くと逆効果なので、自動割当はしない（個別指定 it.img のみ使用）
-    const ph = it.img || "";
+    // 個別指定（cfg.mi＝手動アップロード or 内容一致の自動配置）のみ使用。無関係な写真の一括割当はしない
+    const ph = it.img || (cfg.mi && cfg.mi[it.id]) || "";
     return `
     <button class="mi-card" data-add="${it.id}">
       ${D.cart[it.id] ? `<span class="mi-cnt">${D.cart[it.id]}</span>` : ""}
