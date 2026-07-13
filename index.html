@@ -3925,7 +3925,7 @@ async function autofillFromUrl(){
       ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。クーポンはチェックで調整、写真は不要なものを×で外せます。`
       : "情報を取得できませんでした。お手数ですが手動で入力してください。";
   }catch(e){
-    hint.textContent = "このURLからは自動取得できませんでした（Instagram・食べログ等は非対応の場合があります）。手動で入力してください。";
+    hint.textContent = "このURLからは自動取得できませんでした（Instagramは非対応です）。手動で入力してください。";
   }finally{
     btn.disabled = false; btn.textContent = "読み込む";
   }
