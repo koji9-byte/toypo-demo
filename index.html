@@ -3754,9 +3754,12 @@ async function fetchPageImages(url, primary, readerText){
    パターンA: ホットペッパー等の「#### 品名」＋近くの画像・価格
    パターンB: 一般HPの「品名 …… 1,200円」形式 */
 function extractMenuFromText(txt){
-  const items = [], seen = new Set();
+  let items = [];
+  const seen = new Set();
   if(!txt) return items;
   const lines = txt.split(/\n/);
+  // [![alt](thumb)](full) の形式ならフルサイズ側を優先して取る（食べログのサムネ対策）
+  const IMGFULL_RE = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/g;
   const IMG_RE = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/g;
   const PRICE_RE = /(?:[¥￥]\s?([\d,]{3,6}))|(?:([\d,]{3,6})\s*円)/;
   const clean = s => String(s||"")
@@ -3766,45 +3769,81 @@ function extractMenuFromText(txt){
     .replace(/（税込.?）|\(税込.?\)|税込|税抜|〜|~/g,"")
     .replace(/\s{2,}/g," ").trim();
   const bad = s => !s || s.length<2 || s.length>34 ||
-    /予算|営業時間|クーポン|ポイント|飲み放題付|住所|アクセス|定休日|口コミ|レビュー|ランキング|検索|一覧|ページ|地図|予約|貸切|席|喫煙|カード|求人|お問い合わせ|コピーライト|copyright/i.test(s);
+    /[¥￥]|^[～~]|^\d[\d,]*円?$/.test(s) ||                      // 価格・予算の断片
+    /(です|ます|でした|ですね|ました|でしょう)[！!。]?$/.test(s) || // 口コミ文
+    /予算|営業時間|クーポン|ポイント|飲み放題付|住所|アクセス|定休日|口コミ|レビュー|ランキング|検索|一覧|ページ|地図|予約|貸切|喫煙|カード|求人|投稿|保存|シェア|行った|閲覧|お問い合わせ|コピーライト|copyright|^おすすめ$|^オススメ$|お店の情報|写真|メニューについて/i.test(s);
   let lastImg = "", lastImgAlt = "", lastImgLine = -99;
-  for(let i=0;i<lines.length;i++){
-    const ln = lines[i];
-    let m; IMG_RE.lastIndex = 0;
-    while((m = IMG_RE.exec(ln))){ if(looksLikePhoto(m[2])){ lastImg = m[2]; lastImgAlt = String(m[1]||"").replace(/^Image \d+:?\s*/i,"").trim(); lastImgLine = i; } }
-    let name = "", price = 0;
-    const h = ln.match(/####\s*(.+)$/);          // パターンA
-    if(h){
-      name = clean(h[1]);
-      for(let j=i; j<Math.min(i+4, lines.length); j++){
-        const pm = lines[j].match(PRICE_RE);
-        if(pm){ price = parseInt((pm[1]||pm[2]).replace(/,/g,""),10); break; }
-      }
-    }else{                                        // パターンB
-      const pm = ln.match(PRICE_RE);
-      if(pm){
-        price = parseInt((pm[1]||pm[2]).replace(/,/g,""),10);
-        name = clean(ln.replace(PRICE_RE,"")).replace(/[・…‥.]{2,}/g," ").trim();
-        if(!price || price<50 || price>100000) continue;
-      }
-    }
-    if(!name || bad(name) || seen.has(name)) continue;
+  const pushItem = (name, price, nameLine) => {
+    if(!name || bad(name) || seen.has(name)) return;
     // 隣接画像は「品と本当に対応している」と判断できる時だけ採用:
-    //  altが品名と語を共有(4行以内) / 説明的なalt(2行以内) / alt無しは同一行のみ
+    //  altが品名と語を共有(6行以内) / 説明的なalt(2行以内) / alt無しは同一行のみ
     let g = "";
     if(lastImg){
-      const dist = i - lastImgLine;
+      const dist = nameLine - lastImgLine;
       const toks = contentTokens(name);
       const tokenMatch = lastImgAlt && toks.some(t=>lastImgAlt.includes(t));
-      if((dist <= 4 && tokenMatch) ||
-         (dist <= 2 && lastImgAlt.length >= 10) ||
+      if((dist >= 0 && dist <= 6 && tokenMatch) ||
+         (dist >= 0 && dist <= 2 && lastImgAlt.length >= 10) ||
          (dist === 0 && !lastImgAlt)) g = lastImg;
     }
     seen.add(name);
     items.push({n:name.slice(0,30), p:price||0, g});
-    if(items.length >= 14) break;
+  };
+  for(let i=0;i<lines.length && items.length<20;i++){
+    const ln = lines[i];
+    let m; IMGFULL_RE.lastIndex = 0; IMG_RE.lastIndex = 0;
+    if((m = IMGFULL_RE.exec(ln)) && looksLikePhoto(m[3])){
+      lastImg = m[3]; lastImgAlt = String(m[1]||"").replace(/^Image \d+:?\s*/i,"").trim(); lastImgLine = i;
+    }else{
+      while((m = IMG_RE.exec(ln))){ if(looksLikePhoto(m[2])){ lastImg = m[2]; lastImgAlt = String(m[1]||"").replace(/^Image \d+:?\s*/i,"").trim(); lastImgLine = i; } }
+    }
+    const h = ln.match(/####\s*(.+)$/);
+    if(h){                                        // パターンA: 「#### 品名」＋数行先に価格
+      let price = 0;
+      for(let j=i; j<Math.min(i+4, lines.length); j++){
+        const pm = lines[j].match(PRICE_RE);
+        if(pm){ price = parseInt((pm[1]||pm[2]).replace(/,/g,""),10); break; }
+      }
+      pushItem(clean(h[1]), price, i);
+      continue;
+    }
+    const pm = ln.match(PRICE_RE);
+    if(!pm) continue;
+    const price = parseInt((pm[1]||pm[2]).replace(/,/g,""),10);
+    if(!price || price<50 || price>100000) continue;
+    const sameLine = clean(ln.replace(PRICE_RE,"")).replace(/[・…‥.]{2,}/g," ").trim();
+    if(sameLine){                                 // パターンB: 「品名 …… 1,200円」同一行
+      pushItem(sameLine, price, i);
+    }else{                                        // パターンC: 食べログ等「品名の行→(空行)→価格だけの行」
+      for(let j=i-1; j>=Math.max(0, i-4); j--){
+        const cand = clean(lines[j]);
+        if(!cand) continue;
+        if(PRICE_RE.test(lines[j])) break;        // 直前も価格行なら別の品
+        pushItem(cand, price, j);
+        break;
+      }
+    }
   }
-  return items;
+  // 価格付きの品が十分あるなら、価格も画像も無い短い名前（カテゴリ見出しの誤検出）を除外
+  if(items.filter(x=>x.p>0).length >= 3){
+    items = items.filter(x=>x.p>0 || x.g || x.n.length>8);
+  }
+  return items.slice(0, 14);
+}
+/* 食べログ/ホットペッパーはメニュー専用サブページの方が情報が濃いので、そちらも読む */
+function menuSubpageUrl(url){
+  try{
+    const u = new URL(url);
+    if(u.hostname.endsWith("tabelog.com") && !/dtlmenu/.test(u.pathname)){
+      const m = u.pathname.match(/^(\/[^/]+\/[A-Z0-9]+\/[A-Z0-9]+\/\d+\/)/i);
+      if(m) return u.origin + m[1] + "dtlmenu/";
+    }
+    if(u.hostname.endsWith("hotpepper.jp") && !/\/food/.test(u.pathname)){
+      const m = u.pathname.match(/^\/(str[A-Za-z0-9]+)/);
+      if(m) return u.origin + "/" + m[1] + "/food/";
+    }
+  }catch(e){}
+  return "";
 }
 
 /* ---- 写真の内容マッチング（altとファイル名に品名の語が含まれる時だけ割当） ---- */
@@ -3840,7 +3879,20 @@ async function autofillFromUrl(){
     const name = cleanTitle(d.title);
     if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
     const primary = (d.image && d.image.url) ? d.image.url : "";
-    const readerText = await fetchReaderText(url);
+    let readerText = await fetchReaderText(url);
+    let menu = extractMenuFromText(readerText);
+    // 食べログ/ホットペッパーはメニュー専用ページの方が濃いので、写真付き価格品が少なければそちらも読む
+    const quality = m => m.filter(x=>x.p>0).length + m.filter(x=>x.g).length;
+    const sub = menuSubpageUrl(url);
+    if(sub && menu.filter(x=>x.p>0 && x.g).length < 5){
+      hint.textContent = "メニューページも読み込んでいます…";
+      const t2 = await fetchReaderText(sub);
+      if(t2){
+        const m2 = extractMenuFromText(t2);
+        if(quality(m2) > quality(menu)) menu = m2;
+        readerText += "\n" + t2; // 写真抽出にも活用
+      }
+    }
     const imgs = await fetchPageImages(url, primary, readerText);
     if(imgs.length){
       mk.photos = imgs.map(x=>x.url);
@@ -3849,7 +3901,6 @@ async function autofillFromUrl(){
       got.push(imgs.length+"枚の写真");
     }
     // 実メニューの自動生成（3品以上取れた時だけ差し替え）
-    const menu = extractMenuFromText(readerText);
     if(menu.length >= 3){
       mk.customMenu = menu;
       got.push("実メニュー"+menu.length+"品");
