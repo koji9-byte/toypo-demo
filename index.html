@@ -305,7 +305,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 
 /* ================= DEMO: member card subscreen ================= */
 .vip[data-open]{cursor:pointer}
-.vip[data-open]::before{content:"詳細 ›";position:absolute;left:16px;bottom:14px;font-size:10.5px;opacity:.6;z-index:2}
+.vip[data-open]::before{content:"詳細 ›";position:absolute;right:16px;bottom:14px;font-size:10.5px;opacity:.6;z-index:2}
 .subscreen{position:absolute;top:30px;left:0;right:0;bottom:0;z-index:45;background:var(--bg);
   overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;scrollbar-width:none;
   padding-bottom:calc(env(safe-area-inset-bottom) + 92px)}
@@ -439,6 +439,8 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
   box-shadow:0 1px 4px rgba(0,0,0,.08);
 }
 .open-pill{display:flex;align-items:center;gap:8px;margin:2px 16px 12px;padding:10px 14px;background:var(--card);border-radius:12px;font-size:13px;font-weight:600}
+.open-pill .op{white-space:nowrap;flex:0 0 auto}
+.open-pill .op-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .open-pill .op{color:#0B9D58;font-weight:800;font-size:12.5px}
 .sec{margin:20px 16px 0}
 .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
@@ -469,7 +471,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 }
 .vip::after{content:"";position:absolute;top:-60%;right:-20%;width:70%;height:220%;transform:rotate(24deg);
   background:linear-gradient(90deg,transparent, color-mix(in srgb,var(--brand) 45%, transparent), transparent);opacity:.35}
-.vip .v-grp{font-size:11px;opacity:.75;letter-spacing:.1em}
+.vip .v-grp{font-size:11px;opacity:.75;letter-spacing:.1em;padding-right:66px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vip .v-name{font-size:20px;font-weight:800;margin-top:2px;letter-spacing:.02em}
 .vip .v-no{font-size:12.5px;letter-spacing:.18em;opacity:.85;margin-top:14px;font-variant-numeric:tabular-nums}
 .vip .v-badge{
@@ -483,7 +485,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .stat-card{margin:12px 16px 0;background:var(--card);border-radius:14px;padding:4px 16px}
 .stat{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line)}
 .stat:last-child{border-bottom:none}
-.stat .s-l small{display:block;font-size:11px;color:var(--sub);margin-bottom:3px}
+.stat .s-l small{display:block;font-size:11px;color:var(--sub);margin-bottom:3px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stat .s-l b{font-size:14.5px;font-weight:700}
 .stat .s-v{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
 .stat .s-v small{font-size:12px;color:var(--sub);font-weight:600}
@@ -642,7 +644,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .nt-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .nt-thumb .nt-ph{font-size:30px}
 .nt-main{flex:1;min-width:0}
-.nt-card .nt-store{font-size:10px;color:var(--sub);font-weight:600;background:#EEEEEC;border-radius:5px;padding:2px 8px;display:inline-block}
+.nt-card .nt-store{font-size:10px;color:var(--sub);font-weight:600;background:#EEEEEC;border-radius:5px;padding:2px 8px;display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
 .nt-card b{display:block;font-size:14px;margin-top:5px;line-height:1.5}
 .nt-card .nt-d{font-size:11px;color:var(--sub);margin-top:6px;display:flex;align-items:center;gap:7px}
 .nt-card .nt-new{font-size:10px;font-weight:800;color:#fff;background:var(--tp);padding:2px 7px;border-radius:5px}
@@ -3661,20 +3663,27 @@ async function compressImage(file, maxW, quality){
   return cv.toDataURL("image/jpeg", quality);
 }
 /* ---- URL autofill（メタ情報から下書き生成・サーバー不要） ---- */
+/* 文字列は includes、RegExp はそのまま test。誤爆しやすい短語（バー・スパ・リフレ等）は正規表現で境界を制約 */
 const IND_KEYWORDS = [
-  ["yakiniku", ["焼肉","焼き肉","ホルモン","yakiniku","ステーキ","steak","鉄板","炭火"]],
+  ["yakiniku", ["焼肉","焼き肉","ホルモン","yakiniku","ステーキ","steak","鉄板","炭火","ハンバーグ"]],
   ["ramen",    ["ラーメン","らーめん","中華そば","つけ麺","ramen","餃子","担々"]],
-  ["cafe",     ["カフェ","cafe","coffee","コーヒー","ベーカリー","パン屋","bakery","スイーツ","喫茶","パンケーキ"]],
-  ["bar",      ["バー","ラウンジ","lounge","ワインバー","cocktail","カクテル","スナック"," shot bar","ダイニングバー"]],
+  ["cafe",     ["カフェ","cafe","coffee","コーヒー","ベーカリー","パン屋","bakery","スイーツ","喫茶","パンケーキ","バーガー"]],
+  ["beauty",   ["美容室","美容院","ヘアサロン","hair salon","ヘアー","ネイルサロン","ネイル","nail","エステ","まつげ","アイラッシュ","理容","バーバー","barber"]],
+  ["relax",    ["整体","リラク","マッサージ","massage","治療院","接骨","整骨","鍼","もみほぐし",/リフレ(?!ッシュ)/,/スパ(?![イゲシソ])/,/(?<![a-z])spa(?![a-z])/i,"ボディケア","カイロプラ"]],
+  ["bar",      [/(?<![ンバスァィゥェォpaー])バー(?![ガグベバ])/,"ラウンジ","lounge","ワインバー","cocktail","カクテル","スナック","shot bar","ダイニングバー","bal","バル"]],
   ["izakaya",  ["居酒屋","酒場","和食","日本料理","割烹","寿司","鮨","izakaya","ダイニング","炉端","海鮮"]],
-  ["relax",    ["整体","リラク","マッサージ","massage","治療院","接骨","整骨","鍼","もみほぐし","リフレ","spa","スパ","ボディケア","カイロ"]],
-  ["beauty",   ["美容室","美容院","ヘアサロン","hair","ヘアー","カット","カラー","ネイルサロン","ネイル","nail","エステ","まつげ","アイラッシュ","理容","バーバー","barber"]],
   ["fitness",  ["ジム","gym","フィットネス","fitness","トレーニング","パーソナル","ヨガ","yoga","ピラティス","加圧"]],
   ["retail",   ["アパレル","apparel","セレクトショップ","boutique","雑貨","物販","fashion","衣料","古着","ショップ"]]
 ];
 function guessIndustry(text){
-  const s = (text||"").toLowerCase();
-  for(const [key, kws] of IND_KEYWORDS){ if(kws.some(k=>s.includes(k.toLowerCase()))) return key; }
+  const raw = String(text||"");
+  const s = raw.toLowerCase();
+  for(const [key, kws] of IND_KEYWORDS){
+    for(const k of kws){
+      if(k instanceof RegExp){ if(k.test(raw)) return key; }
+      else if(s.includes(k.toLowerCase())) return key;
+    }
+  }
   return null;
 }
 function applyIndustry(key){
@@ -3697,7 +3706,8 @@ function checkTemplate(id){
   if(el && !el.classList.contains("on")){ el.classList.add("on"); const c=$(".tm-check",el); if(c) c.textContent="✓"; }
 }
 function cleanTitle(t){
-  let s = (t||"").split(/[|｜\-–—:：]/)[0].trim();
+  let s = (t||"").split(/[|｜]/)[0].trim();
+  s = s.split(/\s+[-–—:：]\s+/)[0].trim();
   s = s.replace(/\s*(の(公式|ご予約|予約|メニュー|アクセス|クーポン|地図).*|公式(サイト|ホームページ|ＨＰ|HP).*|【.*?】)/g, "").trim();
   s = s.replace(/[（(][^）)]{1,8}[）)]\s*$/,"").trim(); // 末尾の「(居酒屋)」等のジャンル表記を除去
   return s;
@@ -3765,7 +3775,7 @@ function extractMenuFromText(txt){
   // [![alt](thumb)](full) の形式ならフルサイズ側を優先して取る（食べログのサムネ対策）
   const IMGFULL_RE = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/g;
   const IMG_RE = /!\[([^\]]*)\]\((https?:[^)\s]+?\.(?:jpe?g|png|webp)(?:\?[^)\s]*)?)\)/g;
-  const PRICE_RE = /(?:[¥￥]\s?([\d,]{3,6}))|(?:([\d,]{3,6})\s*円)/;
+  const PRICE_RE = /(?:[¥￥]\s?([\d,]{3,6})(?![\d,]))|(?:(?<![\d,])([\d,]{3,6})\s*円)/;
   const clean = s => String(s||"")
     .replace(/!\[[^\]]*\]\([^)]*\)/g,"")
     .replace(/\[([^\]]*)\]\([^)]*\)/g,"$1")
@@ -3775,7 +3785,7 @@ function extractMenuFromText(txt){
   const bad = s => !s || s.length<2 || s.length>34 ||
     /[¥￥]|^[～~]|^\d[\d,]*円?$/.test(s) ||                      // 価格・予算の断片
     /(です|ます|でした|ですね|ました|でしょう)[！!。]?$/.test(s) || // 口コミ文
-    /予算|営業時間|クーポン|ポイント|飲み放題付|住所|アクセス|定休日|口コミ|レビュー|ランキング|検索|一覧|ページ|地図|予約|貸切|喫煙|カード|求人|投稿|保存|シェア|行った|閲覧|お問い合わせ|コピーライト|copyright|^おすすめ$|^オススメ$|お店の情報|写真|メニューについて/i.test(s);
+    /予算|営業時間|クーポン|ポイント|飲み放題付|住所|アクセス|定休日|口コミ|レビュー|ランキング|検索|一覧|ページ|地図|予約|貸切|喫煙|カード|求人|投稿|保存|シェア|行った|閲覧|お問い合わせ|コピーライト|copyright|^おすすめ$|^オススメ$|お店の情報|写真|メニューについて|お知らせ|ニュース|news|お店から|キャンペーン情報|求める人材/i.test(s);
   let lastImg = "", lastImgAlt = "", lastImgLine = -99;
   const pushItem = (name, price, nameLine) => {
     if(!name || bad(name) || seen.has(name)) return;
@@ -3839,8 +3849,8 @@ function menuSubpageUrl(url){
   try{
     const u = new URL(url);
     if(u.hostname.endsWith("tabelog.com") && !/dtlmenu/.test(u.pathname)){
-      const m = u.pathname.match(/^(\/[^/]+\/[A-Z0-9]+\/[A-Z0-9]+\/\d+\/)/i);
-      if(m) return u.origin + m[1] + "dtlmenu/";
+      const m = u.pathname.match(/^(\/[^/]+\/[A-Z0-9]+\/[A-Z0-9]+\/\d+)\/?/i);
+      if(m) return u.origin + m[1] + "/dtlmenu/";
     }
     if(u.hostname.endsWith("hotpepper.jp") && !/\/food/.test(u.pathname)){
       const m = u.pathname.match(/^\/(str[A-Za-z0-9]+)/);
@@ -3875,15 +3885,27 @@ async function autofillFromUrl(){
   btn.disabled = true; btn.textContent = "読込中…";
   hint.textContent = "URLから情報を読み込んでいます…（写真の枚数によっては数秒かかります）";
   try{
-    const r = await fetch("https://api.microlink.io/?url=" + encodeURIComponent(url));
-    const j = await r.json();
-    if(!j || j.status !== "success" || !j.data) throw new Error("no data");
-    const d = j.data;
+    // microlink は「あれば使う」補助情報（単一障害点にしない）。タイムアウト付きで失敗は握りつぶす
+    let title = "", desc = "", primary = "";
+    try{
+      const ctl = (typeof AbortSignal !== "undefined" && AbortSignal.timeout) ? {signal: AbortSignal.timeout(8000)} : {};
+      const r = await fetch("https://api.microlink.io/?url=" + encodeURIComponent(url), ctl);
+      const j = await r.json();
+      if(j && j.status === "success" && j.data){
+        title = j.data.title || "";
+        desc = j.data.description || "";
+        primary = (j.data.image && j.data.image.url) ? j.data.image.url : "";
+      }
+    }catch(e){ /* microlink失敗時はリーダーのみで続行 */ }
     const got = [];
-    const name = cleanTitle(d.title);
-    if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
-    const primary = (d.image && d.image.url) ? d.image.url : "";
     let readerText = await fetchReaderText(url);
+    if(!title && readerText){
+      const tm = readerText.match(/^Title:\s*(.+)$/m);
+      if(tm) title = tm[1].trim();
+    }
+    if(!title && !readerText) throw new Error("all sources failed");
+    const name = cleanTitle(title);
+    if(name){ $("#f-name").value = name.slice(0,30); got.push("店名"); }
     let menu = extractMenuFromText(readerText);
     // 食べログ/ホットペッパーはメニュー専用ページの方が濃いので、写真付き価格品が少なければそちらも読む
     const quality = m => m.filter(x=>x.p>0).length + m.filter(x=>x.g).length;
@@ -3912,19 +3934,20 @@ async function autofillFromUrl(){
       mk.customMenu = null;
     }
     autoAssignMenuPhotos(true); // メニュー全品に写真を自動配置（品に隣接した画像＞内容一致＞順番）
-    const g = guessIndustry([d.title, d.description, url].join(" "));
+    const g = guessIndustry([title, desc, url, readerText.slice(0,400)].join(" "));
     if(g){
       applyIndustry(g);
       got.push("業態（"+PRESETS[g].label+"）");
       // B案簡易版：業態に合ったおすすめクーポンを自動チェック
       (B_RECOMMEND[g]||[]).forEach(checkTemplate);
-      // 店名を差し込んだ会員特典クーポンを自動追加
-      const store = name || $("#f-name").value.trim() || "当店";
-      $("#ed-coupons").innerHTML = "";
-      $("#mk-editors").open = true;
-      addCouponRow({e:"🎁", title:"「"+store+"」アプリ会員 登録特典", cond:"初回ご登録で", days:30});
-      got.push("おすすめクーポン自動選択");
     }
+    // 店名を差し込んだ会員特典クーポン：前回の自動追加分だけ入れ替える（手入力の行は消さない）
+    const store = (name || $("#f-name").value.trim() || "当店").slice(0,18);
+    $$('#ed-coupons .ed-item[data-auto]').forEach(el=>el.remove());
+    $("#mk-editors").open = true;
+    const autoRow = addCouponRow({e:"🎁", title:"「"+store+"」アプリ会員 登録特典", cond:"初回ご登録で", days:30});
+    if(autoRow) autoRow.dataset.auto = "1";
+    got.push("会員特典クーポン");
     hint.innerHTML = got.length
       ? `<b>${esc(name||"店舗")}</b> を読み込みました（${got.join("・")}）。クーポンはチェックで調整、写真は不要なものを×で外せます。`
       : "情報を取得できませんでした。お手数ですが手動で入力してください。";
@@ -3988,6 +4011,8 @@ function industryTemplates(ind){
   return preset.concat(uni);
 }
 function renderCouponTemplates(){
+  // 再構築しても「定番（u_*）」のチェック状態は引き継ぐ（業態切替でユーザー選択を消さない）
+  const keepUni = new Set($$("#cp-templates .tmpl-item.on").map(el=>el.dataset.tid).filter(id=>id && id.startsWith("u_")));
   const items = industryTemplates(mk.ind);
   cpTemplateMap = {};
   let html = "", lastCat = "";
@@ -4002,6 +4027,7 @@ function renderCouponTemplates(){
   }
   const box = $("#cp-templates");
   box.innerHTML = html;
+  keepUni.forEach(id=>checkTemplate(id));
   box.onclick = e=>{
     const it = e.target.closest(".tmpl-item"); if(!it) return;
     const on = !it.classList.contains("on");
@@ -4149,6 +4175,7 @@ function addCouponRow(c){
   $(".ed-del", wrap).onclick = ()=> wrap.remove();
   wireRowPhoto(wrap, "クーポン写真を追加");
   $("#ed-coupons").appendChild(wrap);
+  return wrap;
 }
 function addNoticeRow(n){
   n = n || {};
@@ -4181,7 +4208,8 @@ function initMaker(){
     const b = e.target.closest(".ind-btn"); if(!b) return;
     mk.ind = b.dataset.k;
     $$(".ind-btn", ig).forEach(x=>{ x.classList.toggle("on", x===b); x.setAttribute("aria-checked", x===b); });
-    if(!mk.customColor){ mk.color = PRESETS[mk.ind].color; renderSwatches(); }
+    if(!mk.customColor){ mk.color = PRESETS[mk.ind].color; }
+    renderSwatches();
     if(!mk.toneTouched){ setTone(TONE_BY_IND[mk.ind] || "fine"); }
     renderCouponTemplates();
     autoAssignMenuPhotos(true); // 新しい業態の品へ再配置
@@ -4197,7 +4225,7 @@ function initMaker(){
 
   // URL autofill
   $("#btn-url").addEventListener("click", autofillFromUrl);
-  $("#f-url").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); autofillFromUrl(); } });
+  $("#f-url").addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); if(!$("#btn-url").disabled) autofillFromUrl(); } });
 
   // photos: add by URL
   $("#btn-photo-add").addEventListener("click", ()=>{
@@ -4233,6 +4261,12 @@ function initMaker(){
   $("#btn-gen").addEventListener("click", generate);
   $("#btn-copy").addEventListener("click", copyUrl);
   $("#btn-preview").addEventListener("click", ()=>{
+    if(!$("#f-name").value.trim()){
+      $("#f-name").focus();
+      $("#f-name").style.borderColor = "var(--tp)";
+      setTimeout(()=>{ $("#f-name").style.borderColor = ""; }, 1600);
+      return;
+    }
     sessionStorage.setItem("tp-from-maker","1");
     location.hash = "d=" + encCfg(readForm());
   });
@@ -4243,6 +4277,7 @@ function initMaker(){
     $("#ed-banners").innerHTML = ""; $("#ed-coupons").innerHTML = ""; $("#ed-notices").innerHTML = "";
     renderCouponTemplates();
     renderMenuPhotoEditor();
+    mk.customColor = false; mk.color = PRESETS[mk.ind].color; renderSwatches();
     mk.toneTouched = false; setTone(TONE_BY_IND[mk.ind] || "fine");
     $("#mk-result").hidden = true;
     $("#f-name").focus();
@@ -4252,18 +4287,7 @@ function initMaker(){
   // restore last inputs
   try{
     const last = JSON.parse(localStorage.getItem("tp-last") || "null");
-    if(last){
-      $("#f-name").value = last.n || "";
-      $("#f-banner").value = last.t || "";
-      if(PRESETS[last.i]){ mk.ind = last.i; }
-      if(last.c){ mk.color = last.c; mk.customColor = last.c !== PRESETS[mk.ind].color; }
-      $$(".ind-btn", ig).forEach(x=>{ const on = x.dataset.k===mk.ind; x.classList.toggle("on",on); x.setAttribute("aria-checked",on); });
-      renderSwatches();
-      renderCouponTemplates();
-      renderMenuPhotoEditor();
-      if(last.tn){ mk.toneTouched = true; setTone(last.tn); }
-      else setTone(TONE_BY_IND[mk.ind] || "fine");
-    }
+    if(last) restoreFromCfg(last); // 部分復元だと発行時に劣化cfgで履歴を上書きするため完全復元にする
   }catch(e){}
 }
 function renderSwatches(){
@@ -4315,7 +4339,8 @@ function readForm(){
     if(ph){ cpMatched = true; return {...c, img:ph}; }
     return c;
   });
-  if(!cpDefault || cpMatched){ if(allCp.length) cfg.cp = allCp; }
+  // 既定と異なる場合は空配列でも cfg.cp を付ける（「全部外した」をデモに伝えるため）
+  if(!cpDefault || cpMatched){ cfg.cp = allCp; }
   // メニュー：URLから取得した実メニューがあれば差し替え（写真は編集結果を反映）
   if(mk.customMenu && mk.customMenu.length){
     cfg.mn = mk.customMenu.map((m,i)=>{
@@ -4349,7 +4374,7 @@ function generate(){
   $("#res-url").value = url;
   $("#mk-result").hidden = false;
   drawQR(url, $("#res-qr"));
-  localStorage.setItem("tp-last", JSON.stringify(cfg));
+  safeSetItem("tp-last", cfg);
   saveHistory(cfg);
   renderHistory();
   $("#mk-result").scrollIntoView({behavior:"smooth", block:"start"});
@@ -4392,7 +4417,39 @@ function saveHistory(cfg){
   try{ h = JSON.parse(localStorage.getItem("tp-hist") || "[]"); }catch(e){}
   h = h.filter(x => x.n !== cfg.n);
   h.unshift(cfg);
-  localStorage.setItem("tp-hist", JSON.stringify(h.slice(0,8)));
+  safeSetItem("tp-hist", h.slice(0,8));
+}
+function safeSetItem(key, obj){
+  try{ localStorage.setItem(key, JSON.stringify(obj)); return; }catch(e){}
+  try{ // 容量超過時はdata URL写真を落とした軽量版で再試行
+    const strip = o => JSON.parse(JSON.stringify(o, (k,v)=> (typeof v==="string" && v.startsWith("data:image")) ? undefined : v));
+    localStorage.setItem(key, JSON.stringify(Array.isArray(obj) ? obj.map(strip) : strip(obj)));
+  }catch(e){ /* 保存できなくても発行は続行 */ }
+}
+function restoreFromCfg(x){
+  if(!x || !PRESETS[x.i]) return false;
+  $("#f-name").value = x.n || "";
+  $("#f-banner").value = x.t || "";
+  mk.ind = x.i; mk.color = x.c || PRESETS[x.i].color; mk.customColor = mk.color !== PRESETS[x.i].color;
+  $$(".ind-btn").forEach(el=>{ const on = el.dataset.k===x.i; el.classList.toggle("on",on); el.setAttribute("aria-checked",on); });
+  renderSwatches();
+  mk.photos = (x.phs && x.phs.length) ? x.phs.slice() : (x.ph ? [x.ph] : []);
+  mk.photosAlt = mk.photos.map(()=>"");
+  mk.customMenu = (x.mn && x.mn.length) ? x.mn.map(m=>({n:m.n, p:m.p||0, g:m.g||""})) : null;
+  mk.menuImgs = x.mi ? {...x.mi} : {};
+  if(mk.customMenu) mk.customMenu.forEach((m,i)=>{ if(m.g) mk.menuImgs["m"+i] = m.g; });
+  $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
+  renderMenuPhotoEditor();
+  mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
+  $("#ed-banners").innerHTML = ""; (x.bn||[]).forEach(addBannerRow);
+  renderCouponTemplates();
+  $("#ed-coupons").innerHTML = "";
+  if(Array.isArray(x.cp)){
+    $$("#cp-templates .tmpl-item.on").forEach(el=>{ el.classList.remove("on"); $(".tm-check",el).textContent=""; });
+    x.cp.forEach(addCouponRow);
+  }
+  $("#ed-notices").innerHTML = ""; (x.nt||[]).forEach(addNoticeRow);
+  return true;
 }
 function renderHistory(){
   let h = [];
@@ -4404,29 +4461,7 @@ function renderHistory(){
   $("#hist-row").onclick = e => {
     const b = e.target.closest(".hist-chip"); if(!b) return;
     const x = h[+b.dataset.i]; if(!x) return;
-    $("#f-name").value = x.n;
-    $("#f-banner").value = x.t || "";
-    mk.ind = x.i; mk.color = x.c; mk.customColor = x.c !== PRESETS[x.i].color;
-    $$(".ind-btn").forEach(el=>{ const on = el.dataset.k===x.i; el.classList.toggle("on",on); el.setAttribute("aria-checked",on); });
-    renderSwatches();
-    // restore photos / tone / editors
-    mk.photos = (x.phs && x.phs.length) ? x.phs.slice() : (x.ph ? [x.ph] : []);
-    mk.photosAlt = mk.photos.map(()=>"");
-    mk.customMenu = (x.mn && x.mn.length) ? x.mn.map(m=>({n:m.n, p:m.p||0, g:m.g||""})) : null;
-    mk.menuImgs = x.mi ? {...x.mi} : {};
-    if(mk.customMenu) mk.customMenu.forEach((m,i)=>{ if(m.g) mk.menuImgs["m"+i] = m.g; });
-    $("#f-photo").value = ""; syncPrimary(); renderPhotoStrip();
-    renderMenuPhotoEditor();
-    mk.toneTouched = true; setTone(x.tn || TONE_BY_IND[x.i] || "fine");
-    $("#ed-banners").innerHTML = ""; (x.bn||[]).forEach(addBannerRow);
-    // クーポン：カスタム指定があれば全テンプレOFF＋その内容を再現、なければ業態既定のまま
-    renderCouponTemplates();
-    $("#ed-coupons").innerHTML = "";
-    if(x.cp && x.cp.length){
-      $$("#cp-templates .tmpl-item.on").forEach(el=>{ el.classList.remove("on"); $(".tm-check",el).textContent=""; });
-      x.cp.forEach(addCouponRow);
-    }
-    $("#ed-notices").innerHTML = ""; (x.nt||[]).forEach(addNoticeRow);
+    restoreFromCfg(x);
     generate();
   };
 }
@@ -4455,7 +4490,7 @@ function startDemo(cfg){
     stamps: 7, stampMax: 10,
     checkins: 0,
     memberNo: "TOYPO" + String(10000000 + (h % 90000000)),
-    usedCoupons: {}, bonusCoupons: [],
+    usedCoupons: {}, bonusCoupons: [], bonusSeq: 0,
     surveyDone: false,
     cart: {}, seg:"takeout", cats: catsFor(cfg, P), cat: catsFor(cfg, P)[0].k,
     cartView: false, orderDone: null,
@@ -4491,7 +4526,7 @@ function closeSheet(){
 }
 $("#ovl").addEventListener("click", e=>{ if(e.target === $("#ovl")) closeSheet(); });
 
-function logoChar(name){ return esc(name.trim().charAt(0) || "T"); }
+function logoChar(name){ return esc(Array.from(String(name).trim())[0] || "T"); }
 function miniLogo(cfg){ return `<span class="mini-logo">${logoChar(cfg.n)}</span>`; }
 function bigLogo(cfg){ return `<span class="big-logo">${logoChar(cfg.n)}</span>`; }
 function demoPhotos(cfg){ return (cfg.phs && cfg.phs.length) ? cfg.phs : (cfg.ph ? [cfg.ph] : []); }
@@ -4605,7 +4640,8 @@ const RANKS = [
   {key:"platinum", name:"プラチナ",   card:"Platinum", ic:"👑", need:48, disc:15,
     perks:["お会計 15%割引クーポン","専用サポート窓口","記念日フルコース特典"]}
 ];
-function rankLevel(){ return D.stamps + D.checkins; }
+/* ランクは累計来店ベース（7=デモの初期来店実績）。スタンプは満杯でリセットされるため使わない */
+function rankLevel(){ return 7 + D.checkins; }
 function rankIndex(){ let idx=0; const lv=rankLevel(); for(let i=0;i<RANKS.length;i++){ if(lv>=RANKS[i].need) idx=i; } return idx; }
 function rankInfo(){
   const r = RANKS[rankIndex()];
@@ -4621,9 +4657,9 @@ function homeHtml(){
   const fmt = d => `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
   const rank = rankInfo();
   const CPBG = ["#3E2B1E","#5A1F1A","#274060","#42321E","#2B4232","#7A4A2B"];
-  const cpSrc = (cfg.cp && cfg.cp.length) ? cfg.cp : P.coupons;
+  const cpSrc = Array.isArray(cfg.cp) ? cfg.cp : P.coupons; // 空配列=意図的にクーポン0件
   const coupons = [
-    ...D.bonusCoupons.map((c,i)=>({...c, id:"bonus"+i, nw:true})),
+    ...D.bonusCoupons.map(c=>({...c, id:"bonus"+c.bid, nw:true})),
     ...cpSrc.map((c,i)=>({...c, bg:c.bg||CPBG[i%CPBG.length], id:"cp"+i}))
   ];
   // 取得写真は文言と噛み合わないため、クーポンには自動で載せない
@@ -4635,7 +4671,7 @@ function homeHtml(){
     ${miniLogo(cfg)}
     <span class="ttl">${esc(cfg.n)}</span>
   </header>
-  <div class="open-pill"><span class="op">現在営業中</span>${esc(cfg.n)}<span style="margin-left:auto">🗓</span></div>
+  <div class="open-pill"><span class="op">現在営業中</span><span class="op-name">${esc(cfg.n)}</span><span style="margin-left:auto">🗓</span></div>
 
   <div class="banner-wrap" id="banners">
     ${banners.map((b,i)=>{
@@ -4675,10 +4711,19 @@ function homeHtml(){
     </div>
   </div>
 
+  ${(()=>{
+    const lv = rankLevel(), ri = rankIndex();
+    if(ri >= RANKS.length-1) return `
   <div class="next-rank">
-    <p>次のランクまで あと${Math.max(1, 12-(D.stamps+D.checkins))}チェックイン</p>
-    <div class="bar"><i style="width:${Math.min(100, (D.stamps+D.checkins)/12*100)}%"></i></div>
-  </div>
+    <p>最高ランク「${RANKS[ri].name}」です</p>
+    <div class="bar"><i style="width:100%"></i></div>
+  </div>`;
+    const nxt = RANKS[ri+1];
+    return `
+  <div class="next-rank">
+    <p>次のランク「${nxt.name}」まで あと${Math.max(1, nxt.need - lv)}チェックイン</p>
+    <div class="bar"><i style="width:${Math.min(100, lv/nxt.need*100)}%"></i></div>
+  </div>`;})()}
 
   <div class="rank-card">
     <div class="r-l"><b>ランキング</b>${fmt(new Date(now.getFullYear(),now.getMonth(),1))}〜${fmt(mEnd)}<span class="red"> あと${daysLeft}日</span></div>
@@ -4703,10 +4748,11 @@ function homeHtml(){
     <button id="btn-survey">回答</button>
   </div>`}
 
+  ${coupons.length ? `
   <section class="sec">
     <div class="sec-h"><h2>使えるクーポン</h2><span class="more">すべて見る</span></div>
-  </section>
-  <div class="coupon-strip">
+  </section>` : ""}
+  <div class="coupon-strip"${coupons.length?"":" hidden"}>
     ${coupons.map((c,i)=>`
       <button class="cp-card${D.usedCoupons[c.id]?" used":""}${c.img?" cp-has-photo":""}" data-cp="${c.id}">
         ${c.nw?'<span class="cp-new">NEW</span>':""}
@@ -4805,15 +4851,17 @@ function bindHome(sc){
 }
 
 /* ---------- member card subscreen（ランク別特典） ---------- */
-let mcTab = "rank";
-function openMember(tab){ mcTab = tab || "rank"; renderMember(); $("#subscreen").hidden = false; $("#subscreen").scrollTop = 0; }
-function closeMember(){ $("#subscreen").hidden = true; }
+let mcTab = "rank", subscreenView = null; // subscreenの現在の用途(member/notice)
+function openMember(tab){ mcTab = tab || "rank"; subscreenView = "member"; renderMember(); $("#subscreen").hidden = false; $("#subscreen").scrollTop = 0; }
+function closeMember(){ $("#subscreen").hidden = true; subscreenView = null; }
 function siblingStores(cfg, P){
-  const base = cfg.n.replace(/\s*[（(].*$/,"");
+  // 業態語は付けず、店名から既存の店舗種別サフィックスを除いてから支店名を作る（「居酒屋 居酒屋◯◯」「本店 本店」防止）
+  let base = cfg.n.replace(/\s*[（(].*$/,"").trim();
+  base = base.replace(/\s*(本店|駅前店|支店|[0-9０-９]+号店|別館|新館)$/,"").trim() || base;
   return [
-    {n: cfg.n, area:"本店", tag:"登録中", img:cfg.ph||""},
-    {n: P.label.split("・")[0] + " " + base + " 駅前店", area:"サンプル店舗", tag:"登録する", img:""},
-    {n: P.label.split("・")[0] + " " + base + " 本店", area:"サンプル店舗", tag:"登録する", img:""}
+    {n: cfg.n, area:"登録中の店舗", tag:"登録中", img:cfg.ph||""},
+    {n: base + " 駅前店", area:"グループ店舗（サンプル）", tag:"登録する", img:""},
+    {n: base + " 西口店", area:"グループ店舗（サンプル）", tag:"登録する", img:""}
   ];
 }
 function renderMember(){
@@ -4918,13 +4966,14 @@ function openTicket(){
 }
 
 function findCoupon(id){
-  if(id.startsWith("bonus")) return {...D.bonusCoupons[+id.slice(5)], id};
+  if(id.startsWith("bonus")){ const b = D.bonusCoupons.find(x=>"bonus"+x.bid===id); return b ? {...b, id} : null; }
   const i = +id.slice(2);
-  const src = (D.cfg.cp && D.cfg.cp.length) ? D.cfg.cp : D.P.coupons;
+  const src = Array.isArray(D.cfg.cp) ? D.cfg.cp : D.P.coupons;
   return {...src[i], id};
 }
 function openCoupon(id){
   const c = findCoupon(id);
+  if(!c) return;
   if(D.usedCoupons[id]){ toast("このクーポンは使用済みです"); return; }
   openSheet(`
     <div class="ticket">
@@ -4955,9 +5004,10 @@ function openExchange(i){
   $("#sh-close").onclick = closeSheet;
   $("#sh-ex").onclick = ()=>{
     D.pts -= x.pts;
-    D.bonusCoupons.unshift({e:x.e, bg:x.bg, title:x.title, cond:"ポイント交換特典", days:30});
+    D.bonusCoupons.unshift({e:x.e, bg:x.bg, title:x.title, cond:"ポイント交換特典", days:30, bid:++D.bonusSeq});
     closeSheet();
     renderTab();
+    if(subscreenView === "member" && !$("#subscreen").hidden) renderMember(); // 会員カード画面の残高表示も更新
     toast(`交換しました！ 残り${D.pts}P`);
   };
 }
@@ -5010,7 +5060,7 @@ function doCheckin(){
     D.checkins += 1;
     if(D.stamps + 1 >= D.stampMax){
       D.stamps = 0;
-      D.bonusCoupons.unshift({e:"🎁", bg:"#B08A1E", title:"スタンプカード満杯特典クーポン", cond:"おめでとうございます！", days:30});
+      D.bonusCoupons.unshift({e:"🎁", bg:"#B08A1E", title:"スタンプカード満杯特典クーポン", cond:"おめでとうございます！", days:30, bid:++D.bonusSeq});
       closeSheet();
       renderTab();
       setTimeout(()=>{
@@ -5139,7 +5189,7 @@ function cartHtml(){
   ${items.map(it=>`
     <div class="ci-row">
       <span class="e">${it.e}</span>
-      <span class="nm"><b>${esc(it.n)}</b><span>${yen(it.p)}</span></span>
+      <span class="nm"><b>${esc(it.n)}</b><span>${it.p ? yen(it.p) : "－"}</span></span>
       <span class="qty">
         <button data-dec="${it.id}" aria-label="減らす">−</button><span>${it.q}</span><button data-inc="${it.id}" aria-label="増やす">＋</button>
       </span>
@@ -5250,11 +5300,14 @@ function noticeList(){
   const base = (cfg.nt && cfg.nt.length) ? cfg.nt.map((n,i)=>({...n, nw:i===0})) : P.notices.map((n,i)=>({...n, nw:i===0}));
   return base.concat([{t:"アプリ会員だけの限定クーポンを配信中", d:"友だち紹介キャンペーンや、雨の日限定クーポンなど、会員様だけのお得な情報をお届けしています。通知をオンにして見逃さないようにしましょう。", nw:false, filler:true}]);
 }
+const NT_OFFSET_DAYS = [0, 2, 5, 7, 14, 30]; // NT_DATES（今日/2日前/5日前/1週間前/2週間前/先月）と対応
 function noticeDateTime(i){
   const now = new Date();
-  const dt = new Date(now.getTime() - (i*4+1)*86400000 + 3600000);
+  const off = NT_OFFSET_DAYS[i] !== undefined ? NT_OFFSET_DAYS[i] : 30 + (i-5)*7;
+  const dt = new Date(now.getTime() - off*86400000);
   const mm = ["16","33","08","24","41","57"];
-  return `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,"0")}/${String(dt.getDate()).padStart(2,"0")} ${String(9+i).padStart(2,"0")}:${mm[i%mm.length]}`;
+  const hh = off === 0 ? Math.max(7, now.getHours()-2) : 9 + (i % 12); // 今日分は必ず過去時刻
+  return `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,"0")}/${String(dt.getDate()).padStart(2,"0")} ${String(hh).padStart(2,"0")}:${mm[i%mm.length]}`;
 }
 function newsHtml(){
   const {cfg, P} = D;
@@ -5301,6 +5354,7 @@ function openNotice(i){
   const ss = $("#subscreen");
   ss.querySelector(".sb-back").onclick = closeMember;
   ss.onclick = e=>{ if(e.target.closest("[data-reserve]")) toast("デモのため、予約画面は省略しています"); };
+  subscreenView = "notice";
   ss.hidden = false; ss.scrollTop = 0;
 }
 function storeCalendar(){
@@ -5331,7 +5385,7 @@ function infoHtml(){
   const {cfg, P} = D;
   const phs = demoPhotos(cfg);
   const hero = phs[0] || cfg.ph || "";
-  const desc = `「${cfg.n}」は${P.info}のお店です。落ち着いた空間で、スタッフ一同、心のこもったおもてなしでお客様をお迎えします。ぜひごゆっくりお楽しみください。`;
+  const desc = `${P.info}の「${cfg.n}」です。落ち着いた空間で、スタッフ一同、心のこもったおもてなしでお客様をお迎えします。ぜひごゆっくりお楽しみください。`;
   const stores = siblingStores(cfg, P);
   return `
   <header class="app-head">
