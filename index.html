@@ -248,12 +248,16 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 /* 写真/イラストがある時は絵文字・白枠・装飾を隠してアートを主役に */
 .cp-img.cp-photo .cp-e,.cp-img.cp-photo .cp-frame,.cp-img.cp-photo .cp-eyebrow,.cp-has-photo .cp-corner{display:none}
 .cp-img.cp-photo::before{background:linear-gradient(160deg,rgba(0,0,0,.05),rgba(0,0,0,.32))}
+/* 自動生成アート（SVG）: 装飾はSVG側に含まれるためCSS側は全て隠す */
+.cp-img.cp-art{background-size:cover !important;background-position:center !important}
+.cp-img.cp-art .cp-e,.cp-img.cp-art .cp-frame,.cp-img.cp-art .cp-eyebrow{display:none !important}
+.cp-img.cp-art::before,.cp-img.cp-art::after{display:none !important}
 /* home notices */
 .nt-card.home-nt p{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* 上品 fine — 大理石×金の額装 */
 #phone[data-tone="fine"] .cp-card{background:#FBF7EF;border-color:#E7DCC6;box-shadow:0 6px 16px rgba(120,96,48,.14)}
-#phone[data-tone="fine"] .cp-img:not(.cp-photo){background:linear-gradient(157deg,#F4ECDB 0%,#E6D7BB 100%) !important;color:#8A7038;font-size:32px}
+#phone[data-tone="fine"] .cp-img:not(.cp-photo):not(.cp-art){background:linear-gradient(157deg,#F4ECDB 0%,#E6D7BB 100%) !important;color:#8A7038;font-size:32px}
 #phone[data-tone="fine"] .cp-img .cp-frame{inset:7px;border:1px solid rgba(176,138,62,.7);border-radius:4px;box-shadow:inset 0 0 0 3px rgba(176,138,62,.12)}
 #phone[data-tone="fine"] .cp-eyebrow{display:block;color:#B08A3E}
 #phone[data-tone="fine"] .cp-corner{display:block;background:linear-gradient(135deg,#D9BE7A 0%,#B08A3E 58%,transparent 58%)}
@@ -269,7 +273,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
   background-origin:border-box;background-clip:padding-box,border-box;
   box-shadow:0 10px 24px rgba(0,0,0,.4);
 }
-#phone[data-tone="lux"] .cp-img:not(.cp-photo){background:radial-gradient(120% 95% at 30% 12%,#332A1B,#0D0B10) !important;color:#EBCF84;font-size:34px}
+#phone[data-tone="lux"] .cp-img:not(.cp-photo):not(.cp-art){background:radial-gradient(120% 95% at 30% 12%,#332A1B,#0D0B10) !important;color:#EBCF84;font-size:34px}
 #phone[data-tone="lux"] .cp-img .cp-frame{inset:8px;border:1px solid rgba(231,201,118,.6);border-radius:3px;box-shadow:inset 0 0 0 3px rgba(231,201,118,.12)}
 #phone[data-tone="lux"] .cp-eyebrow{display:block;color:#E7C976}
 #phone[data-tone="lux"] .cp-corner{display:block;color:#160E02;background:linear-gradient(135deg,#EBCF84 0%,#B8912F 58%,transparent 58%)}
@@ -281,20 +285,20 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 #phone[data-tone="lux"] .cp-card.used::after{background:rgba(20,17,21,.88);color:#EBCF84;border-color:#EBCF84}
 #phone[data-tone="lux"] .cp-new,#phone[data-tone="fine"] .cp-new{left:auto;right:8px}
 /* 絵文字を金のリングに収めて高級感を出す（写真なしのlux/fine） */
-#phone[data-tone="lux"] .cp-img:not(.cp-photo) .cp-e,#phone[data-tone="fine"] .cp-img:not(.cp-photo) .cp-e{
+#phone[data-tone="lux"] .cp-img:not(.cp-photo):not(.cp-art) .cp-e,#phone[data-tone="fine"] .cp-img:not(.cp-photo):not(.cp-art) .cp-e{
   display:grid;place-items:center;width:56px;height:56px;border-radius:50%;font-size:26px;
 }
-#phone[data-tone="lux"] .cp-img:not(.cp-photo) .cp-e{
+#phone[data-tone="lux"] .cp-img:not(.cp-photo):not(.cp-art) .cp-e{
   border:1px solid rgba(235,207,132,.55);
   background:radial-gradient(circle at 38% 32%,rgba(235,207,132,.16),rgba(235,207,132,0) 70%);
   box-shadow:0 0 0 4px rgba(235,207,132,.06);
 }
-#phone[data-tone="fine"] .cp-img:not(.cp-photo) .cp-e{
+#phone[data-tone="fine"] .cp-img:not(.cp-photo):not(.cp-art) .cp-e{
   border:1px solid rgba(176,138,62,.5);
   background:radial-gradient(circle at 38% 32%,rgba(176,138,62,.14),rgba(176,138,62,0) 70%);
 }
 /* 斜めの金の箔ツヤ */
-#phone[data-tone="lux"] .cp-img:not(.cp-photo)::after,#phone[data-tone="fine"] .cp-img:not(.cp-photo)::after{
+#phone[data-tone="lux"] .cp-img:not(.cp-photo):not(.cp-art)::after,#phone[data-tone="fine"] .cp-img:not(.cp-photo):not(.cp-art)::after{
   content:"";position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(118deg,transparent 34%,rgba(235,207,132,.12) 50%,transparent 66%);
 }
@@ -4491,6 +4495,61 @@ function logoChar(name){ return esc(name.trim().charAt(0) || "T"); }
 function miniLogo(cfg){ return `<span class="mini-logo">${logoChar(cfg.n)}</span>`; }
 function bigLogo(cfg){ return `<span class="big-logo">${logoChar(cfg.n)}</span>`; }
 function demoPhotos(cfg){ return (cfg.phs && cfg.phs.length) ? cfg.phs : (cfg.ph ? [cfg.ph] : []); }
+/* ================================================================
+   クーポンアート自動生成
+   写真が無いクーポンに、トーン×店舗ブランド×クーポン内容から
+   その場でSVGのテンプレデザインを生成して背景にする（URLには入れない）
+================================================================ */
+function svgEsc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"'"); }
+function couponMotif(c){
+  const t = c.title || "";
+  let m;
+  if((m = t.match(/(\d{1,2})\s*[%％]\s*(OFF|オフ|引)?/i))) return {kind:"txt", a:m[1]+"%", b:"OFF"};
+  if((m = t.match(/([\d,]{3,6})\s*円\s*(引|OFF|オフ)/i))) return {kind:"txt", a:"¥"+m[1], b:"OFF"};
+  const MAP = [
+    [/生ビール|ビール|乾杯|ジョッキ/,"🍺"],[/ワイン/,"🍷"],[/カクテル/,"🍸"],[/日本酒|利き酒|晩酌/,"🍶"],
+    [/コーヒー|ラテ|カフェ/,"☕"],[/ケーキ|デザート|スイーツ|パフェ/,"🍰"],[/誕生/,"🎂"],
+    [/紹介|友だち|友達/,"🎁"],[/雨/,"☔"],[/スタンプ/,"⭐"],[/SNS|フォロー|インスタ/,"📱"],
+    [/カルビ|タン(?!ト)|ハラミ|焼肉|和牛|ホルモン/,"🥩"],[/ラーメン|替え玉|麺/,"🍜"],[/餃子/,"🥟"],
+    [/ヘッドスパ|マッサージ|もみほぐし|整体/,"💆"],[/カット|カラー|前髪|トリートメント/,"💇"],
+    [/ジム|トレーニング|パーソナル/,"💪"],[/プロテイン/,"🥤"],[/チャージ/,"🎫"],
+    [/会員|登録|アプリ/,"🎫"],[/初回|新規|はじめて/,"✨"],[/宴会|グループ|コース/,"🎉"],[/モーニング|セット/,"🥪"]
+  ];
+  for(const [re,e] of MAP) if(re.test(t)) return {kind:"emoji", e};
+  if(/無料|プレゼント|サービス|進呈/.test(t)) return {kind:"txt", a:"FREE", b:"COUPON"};
+  return {kind:"emoji", e: c.e || "🎟️"};
+}
+function couponArt(c, tone, brand, storeName){
+  const mo = couponMotif(c);
+  const name = svgEsc(String(storeName||"").slice(0,20));
+  const serif = "'Hiragino Mincho ProN','Yu Mincho',serif";
+  const sans = "-apple-system,'Hiragino Sans',sans-serif";
+  let svg = "";
+  if(tone === "pop"){
+    const b1 = brand, b2 = mix(brand, "#FFFFFF", 0.42);
+    const conf = `<circle cx='72' cy='84' r='9' fill='#FFD166' opacity='.85'/><circle cx='526' cy='96' r='7' fill='#fff' opacity='.7'/><rect x='488' y='288' width='14' height='14' rx='3' fill='#4ECDC4' transform='rotate(24 495 295)' opacity='.85'/><circle cx='96' cy='300' r='6' fill='#fff' opacity='.6'/><rect x='60' y='190' width='12' height='12' rx='3' fill='#FFD166' transform='rotate(-18 66 196)' opacity='.8'/><circle cx='540' cy='210' r='5' fill='#FFD166' opacity='.9'/>`;
+    const motif = mo.kind === "txt"
+      ? `<text x='300' y='218' text-anchor='middle' font-family="${sans}" font-weight='800' font-size='96' fill='#fff'>${svgEsc(mo.a)}</text><text x='300' y='276' text-anchor='middle' font-family="${sans}" font-weight='800' font-size='34' letter-spacing='10' fill='#fff' opacity='.9'>${svgEsc(mo.b)}</text>`
+      : `<text x='300' y='248' text-anchor='middle' font-size='128'>${mo.e}</text>`;
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'><defs><linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${b1}'/><stop offset='1' stop-color='${b2}'/></linearGradient></defs><rect width='600' height='400' fill='url(#bg)'/>${conf}<text x='300' y='70' text-anchor='middle' font-family="${sans}" font-weight='800' font-size='17' letter-spacing='7' fill='#fff' opacity='.85'>COUPON</text>${motif}<text x='300' y='362' text-anchor='middle' font-family="${sans}" font-weight='700' font-size='17' fill='#fff' opacity='.75'>${name}</text></svg>`;
+  }else{
+    const lux = tone === "lux";
+    const bg = lux
+      ? `<radialGradient id='bg' cx='30%' cy='18%' r='95%'><stop offset='0' stop-color='#33291A'/><stop offset='.55' stop-color='#17141A'/><stop offset='1' stop-color='#0D0B10'/></radialGradient>`
+      : `<linearGradient id='bg' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='#FBF6EA'/><stop offset='1' stop-color='#EDDFC2'/></linearGradient>`;
+    const goldA = lux ? "#F0DA9A" : "#C9A65A", goldB = lux ? "#8A6D2E" : "#8A6C2C";
+    const ink = lux ? "#F0DA9A" : "#8A6C2C";
+    const foil = lux ? `<path d='M330 0 L600 0 L600 190 Z' fill='#E7C976' opacity='.05'/>` : `<path d='M330 0 L600 0 L600 190 Z' fill='#B08A3E' opacity='.06'/>`;
+    const motif = mo.kind === "txt"
+      ? `<text x='300' y='222' text-anchor='middle' font-family="${serif}" font-weight='700' font-size='100' fill='url(#gold)'>${svgEsc(mo.a)}</text><text x='300' y='278' text-anchor='middle' font-family="${serif}" font-size='30' letter-spacing='14' fill='${ink}' opacity='.9'>${svgEsc(mo.b)}</text>`
+      : `<circle cx='300' cy='208' r='74' fill='none' stroke='url(#gold)' stroke-width='1.5'/><circle cx='300' cy='208' r='82' fill='none' stroke='${ink}' stroke-opacity='.28' stroke-width='.8'/><text x='300' y='244' text-anchor='middle' font-size='86'>${mo.e}</text>`;
+    svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'><defs>${bg}<linearGradient id='gold' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${goldA}'/><stop offset='.55' stop-color='${lux?"#C9A24C":"#B08A3E"}'/><stop offset='1' stop-color='${goldB}'/></linearGradient></defs><rect width='600' height='400' fill='url(#bg)'/>${foil}<rect x='14' y='14' width='572' height='372' fill='none' stroke='url(#gold)' stroke-width='2'/><rect x='24' y='24' width='552' height='352' fill='none' stroke='${ink}' stroke-opacity='.3' stroke-width='.8'/><text x='300' y='66' text-anchor='middle' font-family="${serif}" font-size='17' letter-spacing='8' fill='${ink}'>SPECIAL COUPON</text>${motif}<line x1='210' y1='320' x2='390' y2='320' stroke='${ink}' stroke-opacity='.4' stroke-width='.8'/><text x='300' y='352' text-anchor='middle' font-family="${serif}" font-size='17' fill='${ink}' opacity='.85'>${name}</text></svg>`;
+  }
+  // style="..."（二重引用符）内とurl()内で安全なようにエスケープする
+  const enc = encodeURIComponent(svg).replace(/'/g,"%27").replace(/\(/g,"%28").replace(/\)/g,"%29");
+  return `url('data:image/svg+xml,${enc}')`;
+}
+
 /* URL取得の実メニュー(cfg.mn)があればカテゴリを組み立て、なければ業態プリセット */
 function catsFor(cfg, P){
   if(cfg.mn && cfg.mn.length){
@@ -4652,7 +4711,7 @@ function homeHtml(){
       <button class="cp-card${D.usedCoupons[c.id]?" used":""}${c.img?" cp-has-photo":""}" data-cp="${c.id}">
         ${c.nw?'<span class="cp-new">NEW</span>':""}
         <span class="cp-corner">${String.fromCharCode(65 + (i % 26))}</span>
-        <span class="cp-img${c.img?" cp-photo":""}" style="${c.img?`background-image:url('${esc(c.img)}')`:`background:${c.bg}`}"><span class="cp-frame"></span><span class="cp-eyebrow">SPECIAL COUPON</span><span class="cp-e">${c.e}</span></span>
+        <span class="cp-img${c.img?" cp-photo":" cp-art"}" style="${c.img?`background-image:url('${esc(c.img)}')`:`background-image:${couponArt(c, cfg.tn||TONE_BY_IND[cfg.i]||"fine", D.brand, cfg.n)}`}"><span class="cp-frame"></span><span class="cp-eyebrow">SPECIAL COUPON</span><span class="cp-e">${c.e}</span></span>
         <span class="cp-body"><b>${esc(c.title)}</b><span class="cp-tag">${esc(c.cond)}</span>
         <span class="cp-meta">🎫 クーポン</span></span>
         <span class="cp-exp">⏳ ${expDate(c.days)}</span>
