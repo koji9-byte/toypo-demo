@@ -246,7 +246,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
 .cp-img.cp-photo{background-size:cover !important;background-position:center !important}
 .cp-img.cp-photo::before{content:"";position:absolute;inset:0;background:linear-gradient(155deg,rgba(0,0,0,.12),rgba(0,0,0,.60))}
 /* 写真/イラストがある時は絵文字・白枠・装飾を隠してアートを主役に */
-.cp-img.cp-photo .cp-e,.cp-img.cp-photo .cp-frame,.cp-img.cp-photo .cp-eyebrow,.cp-has-photo .cp-corner{display:none}
+.cp-img.cp-photo .cp-e,.cp-img.cp-photo .cp-frame,.cp-img.cp-photo .cp-eyebrow,.cp-has-photo .cp-corner{display:none !important}
 .cp-img.cp-photo::before{background:linear-gradient(160deg,rgba(0,0,0,.05),rgba(0,0,0,.32))}
 /* 自動生成アート（SVG）: 装飾はSVG側に含まれるためCSS側は全て隠す */
 .cp-img.cp-art{background-size:cover !important;background-position:center !important}
@@ -744,7 +744,7 @@ details.mk-adv p{font-size:12px;color:var(--mk-sub);margin-top:6px;line-height:1
     </div>
 
     <div class="mk-field">
-      <label class="mk-label">写真<small>最大5枚・1枚目がメイン。バナー/クーポン/店舗情報に反映されます</small></label>
+      <label class="mk-label">写真<small>最大8枚・1枚目がメイン。バナー/クーポン/店舗情報に反映されます</small></label>
       <div class="photo-strip" id="photo-strip"></div>
       <div class="photo-actions-row">
         <button type="button" class="mk-upload-btn" id="btn-upload">＋ 写真を追加</button>
@@ -3622,7 +3622,7 @@ window.addEventListener("hashchange", route);
 ================================================================ */
 const mk = { ind:"yakiniku", color:PRESETS.yakiniku.color, customColor:false,
   tone:"fine", photo:"", photos:[], photosAlt:[], menuImgs:{}, customMenu:null };
-const MAX_PHOTOS = 5;
+const MAX_PHOTOS = 8;
 
 /* URLから取得した実メニュー（customMenu）があればそれを、なければ業態プリセットを使う */
 function makerMenuItems(){
@@ -3735,8 +3735,10 @@ async function fetchPageImages(url, primary, readerText){
   const out = [], seen = new Set();
   const add = (u, alt) => {
     if(!u || out.length>=MAX_PHOTOS || seen.has(u) || !/^https?:/.test(u) || !looksLikePhoto(u)) return;
+    const altT = String(alt||"").replace(/^Image \d+:?\s*/i,"").trim();
+    if(/ロゴ|logo(?!ut)|アイコン|^CHECK$|ボタン|スタンプカード|地図/i.test(altT)) return; // ブランド素材・UI画像は除外
     seen.add(u);
-    out.push({url:u, alt:String(alt||"").replace(/^Image \d+:?\s*/i,"").trim()});
+    out.push({url:u, alt:altT});
   };
   if(primary) add(primary, "");
   // 1) Jina Reader のmarkdownから ![alt](url) を抽出
@@ -3869,14 +3871,27 @@ function contentTokens(s){
 function findPhotoFor(name){
   const toks = contentTokens(name);
   if(!toks.length) return "";
+  let best = "", bestScore = 0;
   for(let i=0;i<mk.photos.length;i++){
-    let dec = mk.photos[i];
-    if(dec.startsWith("data:")) dec = ""; // アップロード写真は中身の手掛かりが無いので対象外
-    try{ dec = decodeURIComponent(dec); }catch(e){}
-    const hay = ((mk.photosAlt[i]||"") + " " + dec).toLowerCase();
-    if(toks.some(t=>hay.includes(t.toLowerCase()))) return mk.photos[i];
+    let urlDec = mk.photos[i];
+    if(urlDec.startsWith("data:")) continue; // アップロード写真は中身の手掛かりが無いので対象外
+    try{ urlDec = decodeURIComponent(urlDec); }catch(e){}
+    const alt = (mk.photosAlt[i]||"");
+    const altL = alt.toLowerCase(), urlL = urlDec.toLowerCase();
+    let score = 0, altHits = 0;
+    for(const t of toks){
+      const tl = t.toLowerCase();
+      if(altL.includes(tl)) altHits++;
+      if(urlL.includes(tl)) score += 3;      // ファイル名一致は強い証拠
+    }
+    if(altHits){
+      if(alt.length <= 24) score += 4;       // 短いalt＝「その物」の写真名
+      else if(altHits >= 2) score += 3;      // 長い宣伝文は2語以上一致した時だけ
+      // 長文alt×1語一致は加点しない（「デザートまで楽しめる♪」付き焼肉写真が誕生月デザート券に貼られる事故の元）
+    }
+    if(score > bestScore){ bestScore = score; best = mk.photos[i]; }
   }
-  return "";
+  return bestScore >= 3 ? best : "";
 }
 async function autofillFromUrl(){
   const url = $("#f-url").value.trim();
